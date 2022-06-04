@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "app/trian/proto/user.proto";
+
+package app.trian.model;
+
+option java_multiple_files = true;
+
+service Authentication{
+  rpc signIn(SignInRequest) returns (SignInResponse){}
+}
+
+message SignInRequest{
+  string email=1;
+  string password=2;
+}
+
+message SignInResponse{
+  bool success=1;
+  optional UserResponse users=10;
+}

@@ -1,0 +1,33 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package app.trian.model;
+
+option java_multiple_files = true;
+
+service UserService{
+  rpc createNewUser(User) returns (UserResponse){}
+  rpc getListUser(google.protobuf.Empty) returns (ListUser){}
+}
+
+//req
+message User{
+  string name=1;
+  string email=2;
+  string username=3;
+  string password=4;
+}
+
+//res
+message UserResponse{
+  string name=1;
+  string email=2;
+  string username=3;
+  string password=4;
+  string createdAt=5;
+  string updatedAt=6;
+}
+
+//
+message ListUser{
+  repeated UserResponse users=1;
+}
