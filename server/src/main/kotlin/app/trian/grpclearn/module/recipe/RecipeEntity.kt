@@ -1,6 +1,6 @@
 package app.trian.grpclearn.module.recipe
 
-import app.trian.grpclearn.module.recipeIntruction.RecipeInstruction
+import app.trian.grpclearn.module.recipeInstruction.RecipeInstruction
 import app.trian.grpclearn.module.recipe_ingredients.RecipeIngredients
 import app.trian.grpclearn.module.user.User
 import javax.persistence.*
@@ -13,7 +13,7 @@ data class Recipe(
     var title:String,
     var description:String,
     var cover:String,
-    var duration:String,
+    var duration:Long,
     var status:String,
     @ManyToOne(
         cascade = [CascadeType.REMOVE],

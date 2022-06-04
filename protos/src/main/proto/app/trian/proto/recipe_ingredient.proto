@@ -9,26 +9,26 @@ option java_multiple_files = true;
 service RecipeIngredientService{
   rpc getListRecipeIngredientByRecipe(RecipeIngredientByRecipe)returns(ListRecipeIngredientResponse){}
 
-  rpc createRecipeIngredient(CreateRecipeIngredientResponse)returns(RecipeIngredientResponse){}
+  rpc createRecipeIngredient(CreateRecipeIngredientRequest)returns(RecipeIngredientResponse){}
 
-  rpc updateRecipeIngredient(UpdateIngredientRequest)returns(RecipeIngredientResponse){}
+  rpc updateRecipeIngredient(UpdateRecipeIngredientRequest)returns(RecipeIngredientResponse){}
 
-  rpc deleteRecipeIngredient(DeleteRecipeIngredientResponse)returns(RecipeIngredientResponse){}
+  rpc deleteRecipeIngredient(DeleteRecipeIngredientRequest)returns(RecipeIngredientResponse){}
 }
 //req
 message RecipeIngredientByRecipe{
   int64 id_recipe=1;
 }
-message UpdateRecipeIngredientResponse{
+message UpdateRecipeIngredientRequest{
   int64 id=1;
   int64 quantity=2;
 }
-message CreateRecipeIngredientResponse{
+message CreateRecipeIngredientRequest{
   int64 id_recipe=1;
   int64 id_ingredient=2;
   int64 quantity=3;
 }
-message DeleteRecipeIngredientResponse{
+message DeleteRecipeIngredientRequest{
   int64 id=1;
 }
 

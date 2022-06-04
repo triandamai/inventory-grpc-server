@@ -10,7 +10,7 @@ data class RecipeIngredients(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id:Int?,
-    var quantity:String,
+    var quantity:Long,
     @ManyToOne(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REMOVE]

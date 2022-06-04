@@ -1,4 +1,4 @@
-package app.trian.grpclearn.module.recipeIntruction
+package app.trian.grpclearn.module.recipeInstruction
 
 import app.trian.grpclearn.module.recipe.Recipe
 import javax.persistence.*

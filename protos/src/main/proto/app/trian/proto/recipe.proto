@@ -15,6 +15,8 @@ service RecipeService{
 
   rpc getDetailRecipe(DetailRecipeRequest)returns(RecipeDetailResponse){}
 
+  rpc createRecipe(CreateRecipeRequest)returns(RecipeResponse){}
+
   rpc updateRecipe(UpdateRecipeRequest)returns(RecipeResponse){}
 
   rpc deleteRecipe(DeleteRecipeRequest)returns(RecipeResponse){}
@@ -22,11 +24,12 @@ service RecipeService{
 
 //request
 message CreateRecipeRequest{
-  string status=1;
-  string title=2;
-  string description=3;
-  string cover=4;
-  int64 duration=5;
+  int64 user_id=1;
+  string status=2;
+  string title=3;
+  string description=4;
+  string cover=5;
+  int64 duration=6;
 }
 message UpdateRecipeRequest{
   int64 id=1;
@@ -53,9 +56,10 @@ message RecipeResponse{
   string title=2;
   string description=3;
   string cover =4;
-  int64 duration =5;
-  string createdAt=6;
-  string updatedAt=7;
+  string status=5;
+  int64 duration =6;
+  string createdAt=7;
+  string updatedAt=8;
 }
 message RecipeDetailResponse{
   int64 id=1;
