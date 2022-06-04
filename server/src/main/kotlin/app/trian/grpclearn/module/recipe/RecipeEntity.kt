@@ -1,5 +1,6 @@
 package app.trian.grpclearn.module.recipe
 
+import app.trian.grpclearn.module.recipeIntruction.RecipeInstruction
 import app.trian.grpclearn.module.recipe_ingredients.RecipeIngredients
 import app.trian.grpclearn.module.user.User
 import javax.persistence.*
@@ -13,6 +14,7 @@ data class Recipe(
     var description:String,
     var cover:String,
     var duration:String,
+    var status:String,
     @ManyToOne(
         cascade = [CascadeType.REMOVE],
         fetch = FetchType.LAZY
@@ -25,5 +27,10 @@ data class Recipe(
         mappedBy = "id",
         fetch = FetchType.LAZY
     )
-    var ingredients:List<RecipeIngredients> = listOf()
+    var ingredients:List<RecipeIngredients> = listOf(),
+    @OneToMany(
+        mappedBy = "id",
+        fetch = FetchType.LAZY
+    )
+    var instructions:List<RecipeInstruction> = listOf()
 )

@@ -10,7 +10,6 @@ data class RecipeIngredients(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id:Int?,
-    var unit:String,
     var quantity:String,
     @ManyToOne(
         fetch = FetchType.LAZY,
