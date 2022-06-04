@@ -8,16 +8,18 @@ import app.trian.model.SignInResponse
 import app.trian.model.UserResponse
 import io.grpc.stub.StreamObserver
 import net.devh.boot.grpc.server.service.GrpcService
+import org.springframework.transaction.annotation.Transactional
 
 @GrpcService
 class AuthService(
     private val userRepository: UserRepository
 ) : AuthenticationGrpc.AuthenticationImplBase() {
+    @Transactional
     override fun signInBasic(
         request: SignInRequest,
         responseObserver: StreamObserver<SignInResponse>
     ) {
-        val user = userRepository.findByEmail(request.email)
+        val user = userRepository.findTopByEmail(request.email)
         if (user == null) {
             responseObserver.onNext(
                 SignInResponse.newBuilder()
@@ -28,7 +30,7 @@ class AuthService(
             responseObserver.onCompleted()
             return
         }
-        if (user.password == request.password) {
+        if (user.password != request.password) {
             responseObserver.onNext(
                 SignInResponse.newBuilder()
                     .setSuccess(false)
@@ -44,6 +46,7 @@ class AuthService(
                 .setMessage("Success!")
                 .setUsers(
                     UserResponse.newBuilder()
+                        .setId(user.id?.toLong() ?: 0)
                         .setName(user.name)
                         .setAuthProvider(user.auth_provider)
                         .setEmail(user.email)
@@ -51,6 +54,7 @@ class AuthService(
                 )
                 .addAllRoles(user.roles.map {
                     RolesResponse.newBuilder()
+                        .setId(it.id?.toLong() ?: 0)
                         .setName(it.name)
                         .setDescription(it.description)
                         .build()
