@@ -1,13 +1,14 @@
 syntax = "proto3";
 
 import "app/trian/proto/user.proto";
+import "app/trian/proto/roles.proto";
 
 package app.trian.model;
 
 option java_multiple_files = true;
 
 service Authentication{
-  rpc signIn(SignInRequest) returns (SignInResponse){}
+  rpc signInBasic(SignInRequest) returns (SignInResponse){}
 }
 
 message SignInRequest{
@@ -17,5 +18,7 @@ message SignInRequest{
 
 message SignInResponse{
   bool success=1;
-  optional UserResponse users=10;
+  string message=2;
+  optional UserResponse users=3;
+  repeated RolesResponse roles=4;
 }

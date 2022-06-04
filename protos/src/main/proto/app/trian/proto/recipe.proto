@@ -1,0 +1,74 @@
+syntax="proto3";
+package app.trian.model;
+
+import "google/protobuf/empty.proto";
+import "app/trian/proto/recipe_instruction.proto";
+import "app/trian/proto/recipe_ingredient.proto";
+
+
+option java_multiple_files = true;
+
+service RecipeService{
+  rpc getListRecipe(google.protobuf.Empty)returns(ListRecipe){}
+
+  rpc getListRecipeByUser(RecipeByUserRequest)returns(ListRecipe){}
+
+  rpc getDetailRecipe(DetailRecipeRequest)returns(RecipeDetailResponse){}
+
+  rpc updateRecipe(UpdateRecipeRequest)returns(RecipeResponse){}
+
+  rpc deleteRecipe(DeleteRecipeRequest)returns(RecipeResponse){}
+}
+
+//request
+message CreateRecipeRequest{
+  string status=1;
+  string title=2;
+  string description=3;
+  string cover=4;
+  int64 duration=5;
+}
+message UpdateRecipeRequest{
+  int64 id=1;
+  string status=2;
+  string title=3;
+  string description=4;
+  string cover=5;
+  int64 duration=6;
+}
+message DeleteRecipeRequest{
+  int64 id=1;
+}
+
+message DetailRecipeRequest{
+  int64 id=1;
+}
+
+message RecipeByUserRequest{
+  int64 user_id=1;
+}
+//response
+message RecipeResponse{
+  int64 id=1;
+  string title=2;
+  string description=3;
+  string cover =4;
+  int64 duration =5;
+  string createdAt=6;
+  string updatedAt=7;
+}
+message RecipeDetailResponse{
+  int64 id=1;
+  string title=2;
+  string description=3;
+  string cover =4;
+  int64 duration =5;
+  repeated RecipeInstructionResponse instructions=6;
+  repeated RecipeIngredientResponse ingredient=7;
+  string createdAt=8;
+  string updatedAt=9;
+}
+
+message ListRecipe{
+  repeated RecipeResponse recipe=1;
+}

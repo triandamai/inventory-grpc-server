@@ -5,29 +5,45 @@ package app.trian.model;
 option java_multiple_files = true;
 
 service UserService{
-  rpc createNewUser(User) returns (UserResponse){}
-  rpc getListUser(google.protobuf.Empty) returns (ListUser){}
+  rpc getListUser(google.protobuf.Empty)returns(ListUserResponse){}
+
+  rpc createUser(CreateUserRequest) returns(UserResponse){}
+
+  rpc updateUser(UpdateUserRequest)returns(UserResponse){}
+
+  rpc deleteUser(DeleteUserRequest)returns(UserResponse){}
+
 }
 
 //req
-message User{
+message CreateUserRequest{
   string name=1;
   string email=2;
   string username=3;
   string password=4;
+}
+message UpdateUserRequest{
+  int64 id=1;
+  string name=2;
+  string username=3;
+}
+message DeleteUserRequest{
+  int64 id=1;
 }
 
 //res
 message UserResponse{
-  string name=1;
-  string email=2;
-  string username=3;
-  string password=4;
-  string createdAt=5;
-  string updatedAt=6;
+  int64 id=1;
+  string name=2;
+  string email=3;
+  string username=4;
+  //string password=4; // for security reason we don't provide password
+  string auth_provider=5;
+  string createdAt=6;
+  string updatedAt=7;
 }
 
 //
-message ListUser{
+message ListUserResponse{
   repeated UserResponse users=1;
 }
