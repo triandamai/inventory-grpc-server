@@ -1,9 +1,8 @@
 package app.trian.grpclearn.module.roles
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import app.trian.grpclearn.module.user.User
+import com.fasterxml.jackson.annotation.JsonIgnore
+import javax.persistence.*
 
 @Entity
 data class Roles(
@@ -11,5 +10,11 @@ data class Roles(
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id:Int?,
     var name:String,
-    var description:String
+    var description:String,
+    @JsonIgnore
+    @ManyToMany(
+        fetch = FetchType.LAZY,
+        cascade = [CascadeType.REMOVE],
+    )
+    var user:List<User> = listOf()
 )
