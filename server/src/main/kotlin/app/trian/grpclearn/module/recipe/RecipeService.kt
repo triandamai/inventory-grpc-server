@@ -1,12 +1,26 @@
 package app.trian.grpclearn.module.recipe
 
+import app.trian.grpclearn.module.common.fromOffsetDateTime
 import app.trian.grpclearn.module.error.DataNotFound
 import app.trian.grpclearn.module.user.UserRepository
-import app.trian.model.*
+import app.trian.model.RecipeServiceGrpc
+import app.trian.model.ListRecipe
+import app.trian.model.RecipeResponse
+import app.trian.model.RecipeByUserRequest
+import app.trian.model.DetailRecipeRequest
+import app.trian.model.RecipeDetailResponse
+import app.trian.model.RecipeIngredientResponse
+import app.trian.model.IngredientResponse
+import app.trian.model.RecipeInstructionResponse
+import app.trian.model.CreateRecipeRequest
+import app.trian.model.UpdateRecipeRequest
+import app.trian.model.DeleteRecipeRequest
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
 import net.devh.boot.grpc.server.service.GrpcService
 import org.springframework.data.repository.findByIdOrNull
+import java.time.OffsetDateTime
+import java.util.Date
 
 @GrpcService
 class RecipeService(
@@ -26,11 +40,14 @@ class RecipeService(
                             .setTitle(it.title)
                             .setDescription(it.description)
                             .setStatus(it.status)
+                            .setCreatedAt(it.createdAt)
+                            .setUpdatedAt(it.updatedAt)
                             .build()
                     }
                 )
                 .build()
         )
+        responseObserver.onCompleted()
 
     }
 
@@ -53,6 +70,8 @@ class RecipeService(
                             .setDuration(it.duration)
                             .setCover(it.cover)
                             .setId(it.id?.toLong() ?: 0)
+                            .setCreatedAt(it.createdAt)
+                            .setUpdatedAt(it.updatedAt)
                             .build()
                     }
                 )
@@ -61,12 +80,61 @@ class RecipeService(
         responseObserver.onCompleted()
     }
 
+    override fun getDetailRecipe(
+        request: DetailRecipeRequest,
+        responseObserver: StreamObserver<RecipeDetailResponse>
+    ) {
+        val findRecipe = recipeRepository.findByIdOrNull(request.id.toInt()) ?:
+        throw DataNotFound("Cannot find recipe!")
+
+        responseObserver.onNext(
+            RecipeDetailResponse.newBuilder()
+                .setCover(findRecipe.cover)
+                .setDuration(findRecipe.duration)
+                .setDescription(findRecipe.description)
+                .addAllIngredient(
+                    findRecipe.ingredients.map {
+                        RecipeIngredientResponse.newBuilder()
+                            .setId(it.id?.toLong() ?: 0)
+                            .setQuantity(it.quantity)
+                            .setIngredient(
+                                IngredientResponse.newBuilder()
+                                    .setDescription(it.ingredients?.description)
+                                    .setName(it.ingredients?.name)
+                                    .setDescription(it.ingredients?.description)
+                                    .setUnit(it.ingredients?.unit)
+                                    .setPicture(it.ingredients?.picture)
+                                    .setId(it.ingredients?.id?.toLong() ?: 0)
+                                    .setCreatedAt(it.createdAt)
+                                    .setUpdatedAt(it.updatedAt)
+                                    .build()
+                            )
+                            .build()
+                    }
+                )
+                .addAllInstructions(
+                    findRecipe.instructions.map {
+                        RecipeInstructionResponse.newBuilder()
+                            .setDescription(it.description)
+                            .setImage(it.image)
+                            .setId(it.id?.toLong() ?: 0)
+                            .setCreatedAt(it.createdAt)
+                            .setUpdatedAt(it.updatedAt)
+                            .build()
+                    }
+                )
+                .build()
+        )
+        responseObserver.onCompleted()
+
+    }
     override fun createRecipe(
         request: CreateRecipeRequest,
         responseObserver: StreamObserver<RecipeResponse>
     ) {
         val findUser = userRepository.findByIdOrNull(request.userId.toInt()) ?: throw DataNotFound("Cannot find user!")
 
+        val dateTime = OffsetDateTime.now().fromOffsetDateTime()
         val recipe = Recipe(
             id = null,
             title = request.title,
@@ -74,7 +142,9 @@ class RecipeService(
             cover = request.cover,
             duration = request.duration,
             status = request.status,
-            user = findUser
+            user = findUser,
+            createdAt = dateTime,
+            updatedAt = dateTime
         )
         val savedRecipe = recipeRepository.save(recipe)
         responseObserver.onNext(
@@ -84,6 +154,8 @@ class RecipeService(
                 .setDescription(savedRecipe.description)
                 .setStatus(savedRecipe.status)
                 .setTitle(savedRecipe.title)
+                .setCreatedAt(savedRecipe.createdAt)
+                .setUpdatedAt(savedRecipe.updatedAt)
                 .build()
         )
         responseObserver.onCompleted()
@@ -100,7 +172,8 @@ class RecipeService(
             status = request.status,
             description = request.description,
             cover = request.cover,
-            title = request.title
+            title = request.title,
+            updatedAt = OffsetDateTime.now().fromOffsetDateTime()
 
         ))
         responseObserver.onNext(
@@ -111,6 +184,8 @@ class RecipeService(
                 .setDuration(savedData.duration)
                 .setCover(savedData.cover)
                 .setId(savedData.id?.toLong()?:0)
+                .setCreatedAt(savedData.createdAt)
+                .setUpdatedAt(savedData.updatedAt)
                 .build()
         )
         responseObserver.onCompleted()
@@ -131,6 +206,8 @@ class RecipeService(
                 .setDuration(find.duration)
                 .setCover(find.cover)
                 .setId(find.id?.toLong()?:0)
+                .setCreatedAt(find.createdAt)
+                .setUpdatedAt(find.updatedAt)
                 .build()
         )
         responseObserver.onCompleted()

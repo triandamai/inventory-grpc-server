@@ -1,15 +1,27 @@
 package app.trian.grpclearn.module.user
 
+import app.trian.grpclearn.module.common.fromOffsetDateTime
+import app.trian.grpclearn.module.common.isEmailValid
 import app.trian.grpclearn.module.error.DataNotFound
-import app.trian.model.*
+import app.trian.grpclearn.module.error.InvalidRequest
+import app.trian.model.UserServiceGrpc
+import app.trian.model.ListUserResponse
+import app.trian.model.UserResponse
+import app.trian.model.CreateUserRequest
+import app.trian.model.UpdateUserRequest
+import app.trian.model.DeleteUserRequest
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
 import net.devh.boot.grpc.server.service.GrpcService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import java.time.OffsetDateTime
+import java.util.Date
 
 @GrpcService
 class UserService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val passwordEncoder: BCryptPasswordEncoder
 ) :UserServiceGrpc.UserServiceImplBase(){
     override fun getListUser(request: Empty, responseObserver: StreamObserver<ListUserResponse>) {
         val user = userRepository.findAll()
@@ -23,7 +35,9 @@ class UserService(
                             .setName(it.name)
                             .setAuthProvider(it.auth_provider)
                             .setUsername(it.username)
-                        .build()
+                            .setCreatedAt(it.createdAt)
+                            .setUpdatedAt(it.updatedAt)
+                            .build()
                     }
                 ).build()
         )
@@ -32,13 +46,18 @@ class UserService(
     }
 
     override fun createUser(request: CreateUserRequest, responseObserver: StreamObserver<UserResponse>) {
+        if(!isEmailValid(request.email)) throw InvalidRequest("email is not valid!")
+
+        val dateTime =OffsetDateTime.now().fromOffsetDateTime()
         val user = User(
             id=null,
             name = request.name,
             email = request.email,
-            password = request.password,
+            password = passwordEncoder.encode(request.password),
             username = request.username,
-            auth_provider = "",
+            auth_provider = "basic",
+            createdAt = dateTime,
+            updatedAt = dateTime
         )
 
         val saved = userRepository.save(user)
@@ -50,6 +69,9 @@ class UserService(
                 .setEmail(saved.email)
                 .setId(saved.id?.toLong() ?: 0)
                 .setAuthProvider(saved.auth_provider)
+                .setCreatedAt(saved.createdAt)
+                .setUpdatedAt(saved.updatedAt)
+                .setId(saved.id?.toLong() ?: 0)
                 .build()
         )
         responseObserver.onCompleted()
@@ -62,6 +84,7 @@ class UserService(
         val saved = user.copy(
             name = request.name,
             username = request.username,
+            updatedAt = OffsetDateTime.now().fromOffsetDateTime()
         )
         val userSaved = userRepository.save(saved)
         responseObserver.onNext(
@@ -70,6 +93,9 @@ class UserService(
                 .setName(userSaved.name)
                 .setAuthProvider(userSaved.auth_provider)
                 .setUsername(userSaved.username)
+                .setCreatedAt(userSaved.createdAt)
+                .setUpdatedAt(userSaved.updatedAt)
+                .setId(saved.id?.toLong() ?: 0)
                 .build()
         )
         responseObserver.onCompleted()
@@ -87,6 +113,9 @@ class UserService(
                 .setName(findUser.name)
                 .setAuthProvider(findUser.auth_provider)
                 .setUsername(findUser.username)
+                .setCreatedAt(findUser.createdAt)
+                .setUpdatedAt(findUser.updatedAt)
+                .setId(findUser.id?.toLong() ?: 0)
                 .build()
         )
         responseObserver.onCompleted()

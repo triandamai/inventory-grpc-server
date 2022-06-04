@@ -37,6 +37,8 @@ message RecipeIngredientResponse{
   int64 id=1;
   int64 quantity=2;
   optional IngredientResponse ingredient=3;
+  string createdAt =4;
+  string updatedAt=5;
 }
 message ListRecipeIngredientResponse{
   repeated RecipeIngredientResponse ingredient=1;

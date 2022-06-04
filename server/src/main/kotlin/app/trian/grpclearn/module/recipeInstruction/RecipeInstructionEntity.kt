@@ -14,5 +14,7 @@ data class RecipeInstruction(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REMOVE]
     )
-    var recipe: Recipe?
+    var recipe: Recipe?,
+    var createdAt:String,
+    var updatedAt:String
 )

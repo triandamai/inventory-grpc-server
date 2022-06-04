@@ -16,5 +16,8 @@ data class Roles(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REMOVE],
     )
-    var user:List<User> = listOf()
+    var user:List<User> = listOf(),
+    var createdAt:String,
+    var updatedAt:String
+
 )

@@ -32,5 +32,7 @@ data class Recipe(
         mappedBy = "id",
         fetch = FetchType.LAZY
     )
-    var instructions:List<RecipeInstruction> = listOf()
+    var instructions:List<RecipeInstruction> = listOf(),
+    var createdAt:String,
+    var updatedAt:String
 )

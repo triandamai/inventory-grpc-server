@@ -38,6 +38,8 @@ message RecipeInstructionResponse{
   int64 id=1;
   string description=2;
   string image=3;
+  string createdAt=4;
+  string updatedAt=5;
 }
 
 message ListRecipeInstructionResponse{

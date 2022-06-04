@@ -18,7 +18,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
 
     implementation("net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE")
     implementation("net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE")

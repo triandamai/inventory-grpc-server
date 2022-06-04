@@ -1,5 +1,6 @@
 package app.trian.grpclearn.module.recipe_ingredients
 
+import app.trian.grpclearn.module.common.fromOffsetDateTime
 import app.trian.grpclearn.module.error.DataNotFound
 import app.trian.grpclearn.module.ingredients.IngredientsRepository
 import app.trian.grpclearn.module.recipe.RecipeRepository
@@ -7,6 +8,8 @@ import app.trian.model.*
 import io.grpc.stub.StreamObserver
 import net.devh.boot.grpc.server.service.GrpcService
 import org.springframework.data.repository.findByIdOrNull
+import java.time.OffsetDateTime
+import java.util.Date
 
 @GrpcService
 class RecipeIngredientService(
@@ -57,11 +60,14 @@ class RecipeIngredientService(
         val findIngredient = ingredientsRepository.findByIdOrNull(request.idIngredient.toInt()) ?:
         throw DataNotFound("Cannot find Ingredient!")
 
+        val dateTime = OffsetDateTime.now().fromOffsetDateTime()
         val ingredient = RecipeIngredients(
             id = null,
             quantity = request.quantity,
             recipe = findRecipe,
-            ingredients = findIngredient
+            ingredients = findIngredient,
+            createdAt = dateTime,
+            updatedAt = dateTime
         )
 
         val savedData = recipeIngredientsRepository.save(ingredient)
@@ -95,7 +101,7 @@ class RecipeIngredientService(
 
         val savedData = recipeIngredientsRepository.save(find.copy(
             quantity = request.quantity,
-
+            updatedAt = OffsetDateTime.now().fromOffsetDateTime()
         ))
         responseObserver.onNext(
             RecipeIngredientResponse.newBuilder()

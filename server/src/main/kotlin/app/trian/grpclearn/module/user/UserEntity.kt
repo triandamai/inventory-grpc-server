@@ -12,6 +12,9 @@ data class User(
     var id:Int?,
     var name:String,
     var username:String,
+    @Column(
+        unique = true
+    )
     var email:String,
     var password:String,
     var auth_provider:String,
@@ -24,5 +27,7 @@ data class User(
     @OneToMany(
         mappedBy = "user"
     )
-    var recipes:List<Recipe> = listOf()
+    var recipes:List<Recipe> = listOf(),
+    var createdAt:String,
+    var updatedAt:String
 )

@@ -14,4 +14,6 @@ data class Ingredients(
     var picture:String,
     var description:String,
     var unit:String,
+    var createdAt:String,
+    var updatedAt:String
 )

@@ -1,11 +1,14 @@
 package app.trian.grpclearn.module.ingredients
 
+import app.trian.grpclearn.module.common.fromOffsetDateTime
 import app.trian.grpclearn.module.error.DataNotFound
 import app.trian.model.*
 import com.google.protobuf.Empty
 import io.grpc.stub.StreamObserver
 import net.devh.boot.grpc.server.service.GrpcService
 import org.springframework.data.repository.findByIdOrNull
+import java.time.OffsetDateTime
+import java.util.Date
 
 @GrpcService
 class IngredientService(
@@ -25,7 +28,9 @@ class IngredientService(
                             .setUnit(it.unit)
                             .setId(it.id?.toLong() ?: 0)
                             .setPicture(it.picture)
-                        .build()
+                            .setCreatedAt(it.createdAt)
+                            .setUpdatedAt(it.updatedAt)
+                            .build()
                     }
                 )
                 .build()
@@ -37,12 +42,15 @@ class IngredientService(
         request: CreateIngredientRequest,
         responseObserver: StreamObserver<IngredientResponse>
     ) {
+        val dateTime= OffsetDateTime.now().fromOffsetDateTime()
         val ingredients = Ingredients(
             id = null,
             name = request.name,
             description = request.description,
             unit = request.unit,
-            picture = request.picture
+            picture = request.picture,
+            createdAt = dateTime,
+            updatedAt = dateTime
         )
         val savedData = ingredientsRepository.save(ingredients)
 
@@ -53,6 +61,8 @@ class IngredientService(
                 .setPicture(savedData.picture)
                 .setUnit(savedData.unit)
                 .setId(savedData.id?.toLong() ?: 0)
+                .setCreatedAt(savedData.createdAt)
+                .setUpdatedAt(savedData.updatedAt)
                 .build()
         )
         responseObserver.onCompleted()
@@ -69,7 +79,8 @@ class IngredientService(
             description = request.description,
             name = request.name,
             unit = request.unit,
-            picture = request.picture
+            picture = request.picture,
+            updatedAt = OffsetDateTime.now().fromOffsetDateTime()
         ))
         responseObserver.onNext(
             IngredientResponse.newBuilder()
@@ -78,6 +89,8 @@ class IngredientService(
                 .setUnit(savedData.unit)
                 .setPicture(savedData.picture)
                 .setId(savedData.id?.toLong() ?: 0)
+                .setCreatedAt(savedData.createdAt)
+                .setUpdatedAt(savedData.updatedAt)
                 .build()
         )
         responseObserver.onCompleted()
@@ -99,6 +112,8 @@ class IngredientService(
                 .setPicture(findIngredient.picture)
                 .setUnit(findIngredient.unit)
                 .setId(findIngredient.id?.toLong() ?: 0)
+                .setCreatedAt(findIngredient.createdAt)
+                .setUpdatedAt(findIngredient.updatedAt)
                 .build()
         )
         responseObserver.onCompleted()

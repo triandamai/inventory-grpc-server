@@ -66,11 +66,12 @@ message RecipeDetailResponse{
   string title=2;
   string description=3;
   string cover =4;
-  int64 duration =5;
-  repeated RecipeInstructionResponse instructions=6;
-  repeated RecipeIngredientResponse ingredient=7;
-  string createdAt=8;
-  string updatedAt=9;
+  string status=5;
+  int64 duration =6;
+  repeated RecipeInstructionResponse instructions=7;
+  repeated RecipeIngredientResponse ingredient=8;
+  string createdAt=9;
+  string updatedAt=10;
 }
 
 message ListRecipe{
