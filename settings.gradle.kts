@@ -1,7 +1,7 @@
-rootProject.name = "grpc-learn"
+rootProject.name = "inventory-grpc-server"
 
 include(":protos")
-include(":server")
+include(":app-server")
 include(":stub")
 
 pluginManagement {
