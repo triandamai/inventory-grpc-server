@@ -22,13 +22,13 @@ dependencies {
     protobuf(project(":protos"))
 
     api(kotlin("stdlib"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
 
-    api("io.grpc:grpc-stub:1.46.0")
-    api("io.grpc:grpc-protobuf:1.46.0")
+    api("io.grpc:grpc-stub:1.51.0")
+    api("io.grpc:grpc-protobuf:1.51.0")
     api("com.google.protobuf:protobuf-java-util:3.20.1")
-    api("com.google.protobuf:protobuf-kotlin:3.20.1")
+    api("com.google.protobuf:protobuf-kotlin:3.21.12")
     api("io.grpc:grpc-kotlin-stub:1.3.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 }
