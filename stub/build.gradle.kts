@@ -30,6 +30,7 @@ dependencies {
     api("com.google.protobuf:protobuf-java-util:3.20.1")
     api("com.google.protobuf:protobuf-kotlin:3.21.12")
     api("io.grpc:grpc-kotlin-stub:1.3.0")
+    api("com.google.protobuf:protobuf-kotlin-lite:3.20.1")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 }
 
