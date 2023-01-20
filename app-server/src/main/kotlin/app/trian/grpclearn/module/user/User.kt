@@ -1,8 +1,6 @@
 package app.trian.grpclearn.module.user
 
-import app.trian.grpclearn.module.recipe.Recipe
-import app.trian.grpclearn.module.roles.Roles
-import org.springframework.context.annotation.Primary
+import app.trian.grpclearn.module.role.Role
 import javax.persistence.*
 
 @Entity
@@ -23,11 +21,7 @@ data class User(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REMOVE]
     )
-    var roles:List<Roles> = listOf(),
-    @OneToMany(
-        mappedBy = "user"
-    )
-    var recipes:List<Recipe> = listOf(),
+    var roles:List<Role> = listOf(),
     var createdAt:String,
     var updatedAt:String
 )

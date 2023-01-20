@@ -1,11 +1,12 @@
-package app.trian.grpclearn.module.roles
+package app.trian.grpclearn.module.role
+
 
 import app.trian.grpclearn.module.user.User
 import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
-data class Roles(
+data class Role(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     var id:Int?,
