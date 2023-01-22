@@ -1,4 +1,4 @@
-package app.trian.grpclearn
+package app.trian.inventory
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

@@ -1,4 +1,4 @@
-package app.trian.grpclearn.module.common
+package app.trian.inventory.module.common
 
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter

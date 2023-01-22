@@ -1,4 +1,4 @@
-package app.trian.grpclearn.module.error
+package app.trian.inventory.module.error
 
 import io.grpc.Status
 import net.devh.boot.grpc.server.advice.GrpcAdvice
@@ -14,11 +14,11 @@ class ErrorService {
         return Status.INVALID_ARGUMENT.withDescription("Your description").withCause(e)
     }
     @GrpcExceptionHandler(DataNotFound::class)
-    fun handleDatNaNotFound(e:DataNotFound):Status{
+    fun handleDatNaNotFound(e: DataNotFound):Status{
         return Status.NOT_FOUND.withDescription(e.message).withCause(e)
     }
     @GrpcExceptionHandler(UnAuthorized::class)
-    fun handleUnAuthorized(e:UnAuthorized):Status{
+    fun handleUnAuthorized(e: UnAuthorized):Status{
         return Status.UNAUTHENTICATED.withDescription(e.message).withCause(e)
     }
     @GrpcExceptionHandler(ConstraintViolationException::class)

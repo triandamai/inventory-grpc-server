@@ -1,7 +1,7 @@
-package app.trian.grpclearn.module.auth
+package app.trian.inventory.module.auth
 
-import app.trian.grpclearn.module.error.UnAuthorized
-import app.trian.grpclearn.module.user.UserRepository
+import app.trian.inventory.module.error.UnAuthorized
+import app.trian.inventory.module.user.UserRepository
 import app.trian.inventory.stub.*
 import net.devh.boot.grpc.server.service.GrpcService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -13,11 +13,11 @@ class AuthService(
 ) : AuthenticationGrpcKt.AuthenticationCoroutineImplBase() {
 
     override suspend fun signInWithEmailAndPassword(request: SignInRequest): SignInResponse {
-        val userData = userRepository.findTopByEmail(request.email) ?:
+        val userData = userRepository.findTopByUserEmail(request.email) ?:
         throw UnAuthorized("Cannot find user with email ${request.email}")
 
 
-        val match = passwordEncoder.matches(request.password,userData.password)
+        val match = passwordEncoder.matches(request.password,userData.userPassword)
         if (!match) throw UnAuthorized("Email or password didn't match to any account!")
 
         return signInResponse {
@@ -31,5 +31,6 @@ class AuthService(
             }
         }
     }
+
 
 }
