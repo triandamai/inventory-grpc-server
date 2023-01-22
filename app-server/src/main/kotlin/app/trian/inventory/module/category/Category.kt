@@ -17,5 +17,4 @@ data class Category(
     var createdAt: Date,
     @Temporal(TemporalType.TIMESTAMP)
     var updatedAt: Date
-
 )

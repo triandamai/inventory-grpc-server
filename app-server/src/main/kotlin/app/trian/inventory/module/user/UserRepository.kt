@@ -1,7 +1,7 @@
 package app.trian.inventory.module.user
 
-import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.repository.PagingAndSortingRepository
 
-interface UserRepository : JpaRepository<User, Int> {
+interface UserRepository : PagingAndSortingRepository<User, Int> {
     fun findTopByUserEmail(userEmail:String): User?
 }

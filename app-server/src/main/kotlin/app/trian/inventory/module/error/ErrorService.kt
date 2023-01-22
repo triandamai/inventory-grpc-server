@@ -1,6 +1,7 @@
 package app.trian.inventory.module.error
 
 import io.grpc.Status
+import io.grpc.netty.shaded.io.netty.handler.codec.http2.Http2Exception
 import net.devh.boot.grpc.server.advice.GrpcAdvice
 import net.devh.boot.grpc.server.advice.GrpcExceptionHandler
 import org.hibernate.exception.ConstraintViolationException
@@ -28,11 +29,18 @@ class ErrorService {
 
     @GrpcExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityViolationException(e: DataIntegrityViolationException):Status{
-        return Status.ALREADY_EXISTS.withDescription("${e.mostSpecificCause.message}").withCause(e)
+        return Status.ALREADY_EXISTS.withDescription(e.mostSpecificCause.message.orEmpty()).withCause(e)
     }
 
     @GrpcExceptionHandler(InvalidRequest::class)
     fun handleInvalidRequest(e: InvalidRequest):Status{
-        return Status.ALREADY_EXISTS.withDescription("${e.message}").withCause(e)
+        return Status.ALREADY_EXISTS.withDescription(e.message.orEmpty()).withCause(e)
+    }
+
+    @GrpcExceptionHandler(
+        Http2Exception::class
+    )
+    fun handleHttp2(e:Http2Exception):Status{
+        return Status.INTERNAL.withDescription(e.message.orEmpty()).withCause(e)
     }
 }

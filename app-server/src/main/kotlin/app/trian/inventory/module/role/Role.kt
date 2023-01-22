@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
 import javax.persistence.*
 
-@Entity
+@Entity(
+    name = "role_user"
+)
 data class Role(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
