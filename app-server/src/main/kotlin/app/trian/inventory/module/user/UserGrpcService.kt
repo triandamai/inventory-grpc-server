@@ -8,6 +8,7 @@ import net.devh.boot.grpc.server.service.GrpcService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
+import java.util.Date
 
 @GrpcService
 class UserGrpcService(
@@ -63,5 +64,28 @@ class UserGrpcService(
         }
     }
 
+    override suspend fun updateUser(request: UpdateUserRequest): UserResponse {
+        val findUser =  userRepository.findByIdOrNull(request.userId)?:
+        throw DataNotFound("cannot find ${request.userId}")
+
+        val updateUser = with(request){
+            findUser.copy(
+                userFullName = if (userFullName.isNullOrEmpty()) findUser.userFullName else userFullName,
+                userEmail = if (userEmail.isNullOrEmpty()) findUser.userEmail else userEmail,
+                updatedAt = Date()
+            )
+        }
+
+        val saveUpdate = userRepository.save(updateUser)
+
+        return userResponse {
+            userId = saveUpdate.id.orEmpty()
+            userFullName = saveUpdate.userFullName
+            userEmail = saveUpdate.userEmail
+            authProvider = saveUpdate.authProvider
+            createdAt = saveUpdate.createdAt.toString()
+            updatedAt = saveUpdate.updatedAt.toString()
+        }
+    }
 
 }
