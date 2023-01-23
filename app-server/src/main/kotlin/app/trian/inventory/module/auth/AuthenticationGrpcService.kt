@@ -31,7 +31,7 @@ class AuthenticationGrpcService(
             success = true
             message= "yeeey"
             user = userResponse {
-                userFullName = userData.userFullName
+                userFullName = userData.userFullName.orEmpty()
             }
         }
     }
