@@ -13,34 +13,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @GrpcService
 class AuthenticationGrpcService(
-    private val userRepository: UserRepository,
-    private val passwordEncoder:BCryptPasswordEncoder
+    private val authenticationService: AuthenticationService
 ):AuthenticationGrpcKt.AuthenticationCoroutineImplBase(){
 
-    override suspend fun signInWithEmailAndPassword(request: SignInRequest): SignInResponse {
-        val userData = userRepository.findTopByUserEmail(request.email) ?:
-        throw UnAuthorized("Cannot find user with email ${request.email}")
+    override suspend fun signInWithEmailAndPassword(request: SignInRequest): SignInResponse = authenticationService.signInWithEmailAndPassword(request)
 
-        if(userData.authProvider == "GOOGLE") throw UnAuthorized("Email sudah tertaut dengan akun lain!")
-
-        val match = passwordEncoder.matches(request.password,userData.userPassword)
-        if (!match) throw UnAuthorized("Email or password didn't match to any account!")
-
-
-        return signInResponse {
-            success = true
-            message= "yeeey"
-            user = userResponse {
-                userFullName = userData.userFullName.orEmpty()
-            }
-        }
-    }
-
-    override suspend fun signInWithGoogle(request: SignInRequest): SignInResponse {
-        //
-        return signInResponse {
-
-        }
-    }
+    override suspend fun signInWithGoogle(request: SignInRequest): SignInResponse =authenticationService.signInWithGoogle(request)
 
 }
