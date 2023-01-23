@@ -21,9 +21,6 @@ class AuthenticationGrpcService(
         val userData = userRepository.findTopByUserEmail(request.email) ?:
         throw UnAuthorized("Cannot find user with email ${request.email}")
 
-
-
-        //todo: check provider that already exist
         if(userData.authProvider == "GOOGLE") throw UnAuthorized("Email sudah tertaut dengan akun lain!")
 
         val match = passwordEncoder.matches(request.password,userData.userPassword)
