@@ -18,101 +18,18 @@ import java.util.Date
 
 @GrpcService
 class SupplierGrpcService(
-    private val supplierRepository: SupplierRepository
+    private val supplierService: SupplierService
 ) : SupplierGrpcKt.SupplierCoroutineImplBase() {
-    override suspend fun getListSupplier(request: GetPagingRequest): GetListSupplierResponse {
-        val suppliers = supplierRepository.findAll(
-            PageRequest.of(
-                request.page.toInt(),
-                50
-            )
-        )
+    override suspend fun getListSupplier(request: GetPagingRequest): GetListSupplierResponse =
+        supplierService.getListSupplier(request)
+
+    override suspend fun createNewSupplier(request: CreateNewSupplierRequest): SupplierResponse =
+        supplierService.createNewSupplier(request)
 
 
-        return getListSupplierResponse {
-            totalItem = suppliers.totalElements
-            totalPage = suppliers.totalPages.toLong()
-            data += suppliers.map {
-                supplierResponse { }
-            }
-            currentPage = suppliers.number.toLong()
-        }
-    }
+    override suspend fun updateSupplier(request: UpdateSupplierRequest): SupplierResponse =
+        supplierService.updateSupplier(request)
 
-    override suspend fun createNewSupplier(request: CreateNewSupplierRequest): SupplierResponse {
-        val isSupplierExist = supplierRepository.findTopBySupplierEmail(request.supplierEmail)
-        if (isSupplierExist != null) {
-            throw DataExist("Email ${request.supplierEmail} sudah digunakan silahkan gunakan Email lain")
-        }
-
-        val date = Date()
-        val payloadData = Supplier()
-
-        val savedData = supplierRepository.save(
-            payloadData.copy(
-                id = null,
-                supplierFullName = request.supplierFullName,
-                supplierAddress = request.supplierAddress,
-                supplierOrgName = request.supplierOrgName,
-                supplierEmail = request.supplierEmail,
-                supplierPhoneNumber = request.supplierPhoneNumber,
-                createdAt = date,
-                updatedAt = date
-            )
-        )
-        return supplierResponse {
-            supplierId = savedData.id.orEmpty()
-            supplierAddress = savedData.supplierAddress.orEmpty()
-            supplierOrgName = savedData.supplierOrgName.orEmpty()
-            supplierFullName = savedData.supplierFullName.orEmpty()
-            supplierPhoneNumber = savedData.supplierPhoneNumber.orEmpty()
-            createdAt = savedData.createdAt.toString()
-            updatedAt = savedData.updatedAt.toString()
-        }
-    }
-
-    override suspend fun updateSupplier(request: UpdateSupplierRequest): SupplierResponse {
-        val findSupplier = supplierRepository.findByIdOrNull(request.supplierId)
-            ?: throw DataNotFound("Tidak dapat menemukan sata supplier, atau data sudah dihapus")
-
-        val updatedSupplier = with(request) {
-            findSupplier.copy(
-                supplierFullName = if (supplierFullName.isNullOrEmpty()) findSupplier.supplierFullName else supplierFullName,
-                supplierPhoneNumber = if (supplierPhoneNumber.isNullOrEmpty()) findSupplier.supplierPhoneNumber else supplierPhoneNumber,
-                supplierEmail = if (supplierPhoneNumber.isNullOrEmpty()) findSupplier.supplierEmail else supplierEmail,
-                supplierOrgName = if (supplierOrgName.isNullOrEmpty()) findSupplier.supplierOrgName else supplierOrgName,
-                supplierAddress = if (supplierAddress.isNullOrEmpty()) findSupplier.supplierAddress else supplierAddress,
-                updatedAt = Date()
-            )
-        }
-
-        val savedData = supplierRepository.save(updatedSupplier)
-        return supplierResponse {
-            supplierId = savedData.id.orEmpty()
-            supplierAddress = savedData.supplierAddress.orEmpty()
-            supplierOrgName = savedData.supplierOrgName.orEmpty()
-            supplierFullName = savedData.supplierFullName.orEmpty()
-            supplierPhoneNumber = savedData.supplierPhoneNumber.orEmpty()
-            createdAt = savedData.createdAt.toString()
-            updatedAt = savedData.updatedAt.toString()
-        }
-    }
-
-    override suspend fun deleteSupplier(request: DeleteSupplierRequest): SupplierResponse {
-        val findSuplier = supplierRepository.findByIdOrNull(request.customerId)
-            ?: throw DataNotFound("Tidak dapat menemukan sata supplier, atau data sudah dihapus")
-
-        findSuplier.apply {
-            supplierRepository.delete(this)
-        }
-        return supplierResponse {
-            supplierId = findSuplier.id.orEmpty()
-            supplierAddress = findSuplier.supplierAddress.orEmpty()
-            supplierOrgName = findSuplier.supplierOrgName.orEmpty()
-            supplierFullName = findSuplier.supplierFullName.orEmpty()
-            supplierPhoneNumber = findSuplier.supplierPhoneNumber.orEmpty()
-            createdAt = findSuplier.createdAt.toString()
-            updatedAt = findSuplier.updatedAt.toString()
-        }
-    }
+    override suspend fun deleteSupplier(request: DeleteSupplierRequest): SupplierResponse =
+        supplierService.deleteSupplier(request)
 }

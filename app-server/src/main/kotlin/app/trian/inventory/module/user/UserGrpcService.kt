@@ -1,10 +1,10 @@
 package app.trian.inventory.module.user
 
 
+import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.user.AssignRoleRequest
 import app.trian.inventory.v1.user.CreateUserRequest
 import app.trian.inventory.v1.user.DeleteUserRequest
-import app.trian.inventory.v1.user.GetListUserRequest
 import app.trian.inventory.v1.user.GetListUserResponse
 import app.trian.inventory.v1.user.UpdateUserRequest
 import app.trian.inventory.v1.user.UserGrpcKt
@@ -19,7 +19,7 @@ class UserGrpcService(
     private val userService: UserService
 ):UserGrpcKt.UserCoroutineImplBase(){
 
-    override suspend fun getListUser(request: GetListUserRequest): GetListUserResponse = userService.getListUser(request)
+    override suspend fun getListUser(request: GetPagingRequest): GetListUserResponse = userService.getListUser(request)
 
     override suspend fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
         return super.uploadImageUser(requests)
