@@ -3,11 +3,11 @@ package app.trian.inventory.module.user
 import app.trian.inventory.module.error.DataExist
 import app.trian.inventory.module.error.DataNotFound
 import app.trian.inventory.module.role.RoleRepository
+import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.role.roleResponse
 import app.trian.inventory.v1.user.AssignRoleRequest
 import app.trian.inventory.v1.user.CreateUserRequest
 import app.trian.inventory.v1.user.DeleteUserRequest
-import app.trian.inventory.v1.user.GetListUserRequest
 import app.trian.inventory.v1.user.GetListUserResponse
 import app.trian.inventory.v1.user.UpdateUserRequest
 import app.trian.inventory.v1.user.UserImageUploadRequest
@@ -29,14 +29,14 @@ class UserService(
     private val roleRepository: RoleRepository,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
-     fun getListUser(request: GetListUserRequest): GetListUserResponse {
+     fun getListUser(request: GetPagingRequest): GetListUserResponse {
         val dataUsers = userRepository.findAll(
             PageRequest.of(
                 request.page.toInt(),
                 50
             )
         )
-         if(dataUsers.isEmpty) throw DataNotFound("Tidak ditemukan satupun data")
+         if (dataUsers.isEmpty) throw DataNotFound("Tidak ditemukan satupun data")
 
         return getListUserResponse {
             totalItem = 0// dataUsers.totalElements

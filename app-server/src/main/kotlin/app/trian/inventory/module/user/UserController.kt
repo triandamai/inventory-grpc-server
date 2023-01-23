@@ -1,8 +1,6 @@
 package app.trian.inventory.module.user
 
-import app.trian.inventory.v1.user.GetListUserRequest
-import app.trian.inventory.v1.user.GetListUserResponse
-import app.trian.inventory.v1.user.getListUserRequest
+import app.trian.inventory.v1.getPagingRequest
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -24,7 +22,7 @@ class UserController(
         ]
     )
     fun getListUsers(@RequestParam(name = "page") nextPage: Long = 0) = userService.getListUser(
-        getListUserRequest {
+        getPagingRequest {
             page = nextPage
         }
     )
