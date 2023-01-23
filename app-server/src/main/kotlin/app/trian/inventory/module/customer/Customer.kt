@@ -13,11 +13,11 @@ data class Customer(
         strategy = "org.hibernate.id.UUIDGenerator"
     )
     var id:String? = null,
-    var customerFullName:String,
-    var customerEmail:String,
-    var customerPhoneNumber: String,
+    var customerFullName:String?=null,
+    var customerEmail:String?=null,
+    var customerPhoneNumber: String?=null,
     @Temporal(TemporalType.TIMESTAMP)
-    var createdAt: Date,
+    var createdAt: Date?=null,
     @Temporal(TemporalType.TIMESTAMP)
-    var updatedAt: Date
+    var updatedAt: Date?=null
 )

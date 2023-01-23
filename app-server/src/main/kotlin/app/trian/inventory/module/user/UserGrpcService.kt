@@ -38,6 +38,15 @@ class UserGrpcService(
                     userFullName = it.userFullName.orEmpty()
                     userEmail = it.userEmail.orEmpty()
                     authProvider = it.authProvider.orEmpty()
+                    roles += it.roles.map {
+                        roleResponse {
+                            roleId = it.id.orEmpty()
+                            roleName = it.roleName.orEmpty()
+                            roleDescription = it.roleDescription.orEmpty()
+                            createdAt = it.createdAt.toString()
+                            updatedAt = it.updatedAt.toString()
+                        }
+                    }
                     createdAt = it.createdAt.toString()
                     updatedAt = it.updatedAt.toString()
 
