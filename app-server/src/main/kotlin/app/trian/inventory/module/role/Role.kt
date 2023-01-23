@@ -8,9 +8,7 @@ import org.hibernate.annotations.Type
 import java.util.*
 import javax.persistence.*
 
-@Entity(
-    name = "role_user"
-)
+@Entity
 data class Role(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
