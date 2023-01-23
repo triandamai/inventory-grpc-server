@@ -52,11 +52,11 @@ class CategoryGrpcService(
         val saveUpdateCategory = categoryRepository.save(updatecategory)
 
         return categoryResponse {
-            categoryId = findCategory.id.orEmpty()
-            categoryName = findCategory.categoryName.orEmpty()
-            categoryDescription = findCategory.categoryDescription.orEmpty()
-            createdAt = findCategory.createdAt.toString()
-            updatedAt = findCategory.updatedAt.toString()
+            categoryId = saveUpdateCategory.id.orEmpty()
+            categoryName = saveUpdateCategory.categoryName.orEmpty()
+            categoryDescription = saveUpdateCategory.categoryDescription.orEmpty()
+            createdAt = saveUpdateCategory.createdAt.toString()
+            updatedAt = saveUpdateCategory.updatedAt.toString()
         }
     }
 }
