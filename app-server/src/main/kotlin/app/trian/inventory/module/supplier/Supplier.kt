@@ -13,13 +13,13 @@ data class Supplier(
         strategy = "org.hibernate.id.UUIDGenerator"
     )
     var id:String? = null,
-    var supplierFullName:String,
-    var supplierEmail:String,
-    var supplierPhoneNumber: String,
-    var supplierOrgName:String,
-    var supplierAddress:String,
+    var supplierFullName:String?=null,
+    var supplierEmail:String?=null,
+    var supplierPhoneNumber: String?=null,
+    var supplierOrgName:String?=null,
+    var supplierAddress:String?=null,
     @Temporal(TemporalType.TIMESTAMP)
-    var createdAt: Date,
+    var createdAt: Date?=null,
     @Temporal(TemporalType.TIMESTAMP)
-    var updatedAt: Date
+    var updatedAt: Date?=null
 )
