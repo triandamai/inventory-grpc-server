@@ -62,7 +62,7 @@ class CategoryGrpcService(
 
     override suspend fun deleteCategory(request: DeleteCategoryRequest): CategoryResponse {
         val findCategory = categoryRepository.findByIdOrNull(request.categoryId.toString())?:
-        throw DataNotFound("cannot find category ${request.categoryId}")
+        throw DataNotFound("category not found ")
 
         findCategory.id.let { categoryRepository.deleteById(it.orEmpty()) }
 
