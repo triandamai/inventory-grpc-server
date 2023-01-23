@@ -16,10 +16,12 @@ data class Category(
         strategy = "org.hibernate.id.UUIDGenerator"
     )
     var id:String? = null,
-    var categoryName:String,
-    var categoryDescription:String,
+    @Column(nullable = false)
+    var categoryName:String? = null,
+    @Column(nullable = false)
+    var categoryDescription:String? = null,
     @Temporal(TemporalType.TIMESTAMP)
-    var createdAt: Date,
+    var createdAt: Date? = null,
     @Temporal(TemporalType.TIMESTAMP)
-    var updatedAt: Date
+    var updatedAt: Date? = null
 )
