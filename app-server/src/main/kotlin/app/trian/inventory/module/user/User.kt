@@ -1,14 +1,19 @@
 package app.trian.inventory.module.user
 
 import app.trian.inventory.module.role.Role
+import org.hibernate.annotations.GenericGenerator
 import java.util.Date
 import javax.persistence.*
 
 @Entity
 data class User(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    var id:Int?,
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    var id:String? = null,
     var userFullName:String,
     var userEmail:String,
     var userPassword:String,

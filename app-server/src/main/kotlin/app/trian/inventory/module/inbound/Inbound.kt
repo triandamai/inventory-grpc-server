@@ -2,14 +2,19 @@ package app.trian.inventory.module.inbound
 
 import app.trian.inventory.module.supplier.Supplier
 import app.trian.inventory.module.user.User
+import org.hibernate.annotations.GenericGenerator
 import java.util.*
 import javax.persistence.*
 
 @Entity
 data class Inbound(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    var id:Int?,
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    var id:String? = null,
     var status:String,
     var totalAmount:Int,
     @ManyToOne(

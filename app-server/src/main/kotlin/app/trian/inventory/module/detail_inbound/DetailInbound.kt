@@ -4,14 +4,19 @@ import app.trian.inventory.module.inbound.Inbound
 import app.trian.inventory.module.product.Product
 import app.trian.inventory.module.supplier.Supplier
 import app.trian.inventory.module.user.User
+import org.hibernate.annotations.GenericGenerator
 import java.util.*
 import javax.persistence.*
 
 @Entity
 data class DetailInbound(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    var id:Int?,
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    var id:String? = null,
     var status:String,
     var totalAmount:Int,
     @ManyToOne(

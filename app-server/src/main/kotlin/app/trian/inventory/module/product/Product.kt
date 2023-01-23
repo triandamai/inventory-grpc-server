@@ -4,14 +4,19 @@ package app.trian.inventory.module.product
 import app.trian.inventory.module.category.Category
 import app.trian.inventory.module.user.User
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.hibernate.annotations.GenericGenerator
 import java.util.*
 import javax.persistence.*
 
 @Entity
 data class Product(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    var id:Int?,
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    var id:String? = null,
     var productName:String,
     var productDescription:String,
     var productImage:String,
