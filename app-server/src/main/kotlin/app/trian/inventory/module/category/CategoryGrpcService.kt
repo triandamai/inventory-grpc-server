@@ -59,4 +59,19 @@ class CategoryGrpcService(
             updatedAt = saveUpdateCategory.updatedAt.toString()
         }
     }
+
+    override suspend fun deleteCategory(request: DeleteCategoryRequest): CategoryResponse {
+        val findCategory = categoryRepository.findByIdOrNull(request.categoryId.toString())?:
+        throw DataNotFound("cannot find category ${request.categoryId}")
+
+        findCategory.id.let { categoryRepository.deleteById(it.orEmpty()) }
+
+        return categoryResponse {
+            categoryId = findCategory.id.orEmpty()
+            categoryName = findCategory.categoryName.orEmpty()
+            categoryDescription = findCategory.categoryDescription.orEmpty()
+            createdAt = findCategory.createdAt.toString()
+            updatedAt = findCategory.updatedAt.toString()
+        }
+    }
 }
