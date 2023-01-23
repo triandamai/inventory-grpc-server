@@ -81,11 +81,10 @@ class RoleGrpcService(
     }
 
     override suspend fun deleteRole(request: DeleteRoleRequest): RoleResponse {
-        val findRoleById = roleRepository.findByIdOrNull(request.roleId.toString())?:
+        val findRoleById = roleRepository.findByIdOrNull(request.roleId)?:
         throw DataNotFound("cannot find role ${request.roleId}")
-        if (findRoleById.id != null){
-            findRoleById.id?.let { roleRepository.deleteById(it) }
-        }
+
+        findRoleById.id?.let { roleRepository.deleteById(it) }
 
         return roleResponse {
             roleId = findRoleById.id.orEmpty()
