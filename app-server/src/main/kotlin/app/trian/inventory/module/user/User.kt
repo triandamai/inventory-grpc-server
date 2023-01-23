@@ -14,17 +14,17 @@ data class User(
         strategy = "org.hibernate.id.UUIDGenerator"
     )
     var id:String? = null,
-    var userFullName:String,
-    var userEmail:String,
-    var userPassword:String,
-    var authProvider:String,
+    var userFullName:String?=null,
+    var userEmail:String?=null,
+    var userPassword:String?=null,
+    var authProvider:String?=null,
     @ManyToMany(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REFRESH],
     )
     var roles:List<Role> = listOf(),
     @Temporal(TemporalType.TIMESTAMP)
-    var createdAt:Date,
+    var createdAt:Date?=null,
     @Temporal(TemporalType.TIMESTAMP)
-    var updatedAt:Date
+    var updatedAt:Date?=null
 )
