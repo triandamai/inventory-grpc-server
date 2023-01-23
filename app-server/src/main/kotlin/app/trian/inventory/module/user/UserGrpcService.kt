@@ -1,11 +1,13 @@
 package app.trian.inventory.module.user
 
 
+import app.trian.inventory.module.error.DataNotFound
 import app.trian.inventory.v1.user.*
 import kotlinx.coroutines.flow.Flow
 import net.devh.boot.grpc.server.service.GrpcService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 
 @GrpcService
 class UserGrpcService(
@@ -41,4 +43,25 @@ class UserGrpcService(
     override suspend fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
         return super.uploadImageUser(requests)
     }
+
+
+    override suspend fun deleteUser(request: DeleteUserRequest): UserResponse {
+        val findUser = userRepository.findByIdOrNull(request.userId)?:
+        throw DataNotFound("cannot find user ${request.userId}")
+
+        findUser.id.let {
+            userRepository.deleteById(it.orEmpty())
+        }
+
+        return userResponse {
+            userId = findUser.id.orEmpty()
+            userFullName = findUser.userFullName
+            userEmail = findUser.userEmail
+            authProvider = findUser.authProvider
+            createdAt = findUser.createdAt.toString()
+            updatedAt = findUser.updatedAt.toString()
+        }
+    }
+
+
 }
