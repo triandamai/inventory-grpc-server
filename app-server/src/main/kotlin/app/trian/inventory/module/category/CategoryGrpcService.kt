@@ -1,11 +1,12 @@
 package app.trian.inventory.module.category
 
-import app.trian.inventory.v1.category.CategoryGrpcKt
-import app.trian.inventory.v1.category.CategoryResponse
-import app.trian.inventory.v1.category.CreateCategoryRequest
-import app.trian.inventory.v1.category.categoryResponse
+import app.trian.inventory.module.error.DataNotFound
+import app.trian.inventory.v1.category.*
+import app.trian.inventory.v1.role.roleResponse
 import net.devh.boot.grpc.server.service.GrpcService
+import org.springframework.data.repository.findByIdOrNull
 import java.util.Date
+import javax.xml.crypto.Data
 
 @GrpcService
 class CategoryGrpcService(
@@ -33,6 +34,29 @@ class CategoryGrpcService(
             categoryDescription = saveCategory.categoryDescription.orEmpty()
             createdAt = saveCategory.createdAt.toString()
             updatedAt = saveCategory.updatedAt.toString()
+        }
+    }
+
+    override suspend fun updateCategory(request: UpdateCategoryRequest): CategoryResponse {
+        val findCategory = categoryRepository.findByIdOrNull(request.categoryId.toString())?:
+        throw DataNotFound("cannot find category ${request.categoryId}")
+
+        val updatecategory = with(request){
+            findCategory.copy(
+                categoryName = findCategory.categoryName,
+                categoryDescription = findCategory.categoryDescription,
+                updatedAt = Date()
+            )
+        }
+
+        val saveUpdateCategory = categoryRepository.save(updatecategory)
+
+        return categoryResponse {
+            categoryId = findCategory.id.orEmpty()
+            categoryName = findCategory.categoryName.orEmpty()
+            categoryDescription = findCategory.categoryDescription.orEmpty()
+            createdAt = findCategory.createdAt.toString()
+            updatedAt = findCategory.updatedAt.toString()
         }
     }
 }
