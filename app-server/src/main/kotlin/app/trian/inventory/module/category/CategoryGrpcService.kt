@@ -19,8 +19,8 @@ class CategoryGrpcService(
 
     override suspend fun getCategoryById(request: Field): CategoryResponse {
         val findWithId = categoryRepository.findByIdOrNull(request.toString())?:
-        throw DataNotFound("category not found")
 
+        throw DataNotFound("category not found")
 
         return categoryResponse {
             categoryId =findWithId.id.orEmpty()
