@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class RoleService(
+class  RoleService(
     private val roleRepository: RoleRepository
 ) {
     suspend fun getListRole(request: GetPagingRequest): GetListRoleResponse {
