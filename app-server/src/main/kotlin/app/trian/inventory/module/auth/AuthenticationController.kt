@@ -1,6 +1,7 @@
 package app.trian.inventory.module.auth
 
 import app.trian.inventory.v1.authentication.SignInRequest
+import kotlinx.coroutines.coroutineScope
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -10,8 +11,6 @@ import org.springframework.web.bind.annotation.RestController
 class AuthenticationController(
     private val authenticationService: AuthenticationService
 ) {
-    @GetMapping
-    fun index() = "INI dari get"
     @PostMapping(
         value = [
             "/api/v1/sign-in-email"
@@ -22,8 +21,8 @@ class AuthenticationController(
             "application/json"
         ]
     )
-    fun signInWithEmilAndPassword(
+    suspend fun signInWithEmilAndPassword(
         @RequestBody signInRequest: SignInRequest
-    ) = authenticationService.signInWithEmailAndPassword(signInRequest)
+    ) = coroutineScope { authenticationService.signInWithEmailAndPassword(signInRequest) }
 
 }

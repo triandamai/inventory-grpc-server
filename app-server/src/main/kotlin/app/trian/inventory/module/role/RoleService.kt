@@ -18,7 +18,7 @@ import java.util.*
 class RoleService(
     private val roleRepository: RoleRepository
 ) {
-    fun getListRole(request: GetPagingRequest): GetListRoleResponse {
+    suspend fun getListRole(request: GetPagingRequest): GetListRoleResponse {
         val findData = roleRepository.findAll(
             PageRequest.of(
                 request.page.toInt(),
@@ -43,7 +43,7 @@ class RoleService(
         }
     }
 
-    fun createNewRole(request: CreateRoleRequest): RoleResponse {
+    suspend fun createNewRole(request: CreateRoleRequest): RoleResponse {
         val date = Date()
         val payload = Role()
         val savedData = roleRepository.save(
@@ -65,7 +65,7 @@ class RoleService(
         }
     }
 
-    fun updateRole(request: UpdateRoleRequest): RoleResponse {
+    suspend fun updateRole(request: UpdateRoleRequest): RoleResponse {
         val findRole = roleRepository.findByIdOrNull(request.roleId) ?: throw DataNotFound(
             "Role yang akan di update tidak ditemukan atau sudah dihapus"
         )
@@ -89,7 +89,7 @@ class RoleService(
         }
     }
 
-    fun deleteRole(request: DeleteRoleRequest): RoleResponse {
+    suspend fun deleteRole(request: DeleteRoleRequest): RoleResponse {
         val findRoleById =
             roleRepository.findByIdOrNull(request.roleId) ?: throw DataNotFound("cannot find role ${request.roleId}")
 

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("org.springframework.boot") version "2.7.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
@@ -14,6 +15,9 @@ repositories {
 
 dependencies {
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
+//    implementation("org.reactivestreams:reactive-streams:1.0.4")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -24,7 +28,7 @@ dependencies {
 
 
     implementation("net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE")
-    implementation("net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE")
+//    implementation("net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE")
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("mysql:mysql-connector-java")

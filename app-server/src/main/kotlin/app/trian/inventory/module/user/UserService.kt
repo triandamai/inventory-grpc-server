@@ -29,7 +29,7 @@ class UserService(
     private val roleRepository: RoleRepository,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
-     fun getListUser(request: GetPagingRequest): GetListUserResponse {
+     suspend fun getListUser(request: GetPagingRequest): GetListUserResponse {
         val dataUsers = userRepository.findAll(
             PageRequest.of(
                 request.page.toInt(),
@@ -65,7 +65,7 @@ class UserService(
         }
     }
 
-     fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
+     suspend fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
         return userImageUploadResponse {  }
     }
 
@@ -105,7 +105,7 @@ class UserService(
         }
     }
 
-      fun assignRoleUser(request: AssignRoleRequest): UserResponse {
+      suspend fun assignRoleUser(request: AssignRoleRequest): UserResponse {
         val findUser = userRepository.findByIdOrNull(request.userId) ?:
         throw DataNotFound("Tidak dapat menemukan user yang di assign")
 
@@ -137,34 +137,7 @@ class UserService(
         }
     }
 
-    fun deleteUser(request: DeleteUserRequest): UserResponse {
-        val findUser = userRepository.findByIdOrNull(request.userId)?:
-        throw DataNotFound("cannot find user ${request.userId}")
-
-        findUser.id.let {
-            userRepository.deleteById(it.orEmpty())
-        }
-
-        return userResponse {
-            userId = findUser.id.orEmpty()
-            userFullName = findUser.userFullName.orEmpty()
-            userEmail = findUser.userEmail.orEmpty()
-            authProvider = findUser.authProvider.orEmpty()
-            roles += findUser.roles.map {
-                roleResponse {
-                    roleId = it.id.orEmpty()
-                    roleName = it.roleName.orEmpty()
-                    roleDescription = it.roleDescription.orEmpty()
-                    createdAt = it.createdAt.toString()
-                    updatedAt = it.updatedAt.toString()
-                }
-            }
-            createdAt = findUser.createdAt.toString()
-            updatedAt = findUser.updatedAt.toString()
-        }
-    }
-
-    fun updateUser(request: UpdateUserRequest): UserResponse {
+    suspend fun updateUser(request: UpdateUserRequest): UserResponse {
         val findUser =  userRepository.findByIdOrNull(request.userId)?:
         throw DataNotFound("cannot find ${request.userId}")
 
@@ -194,6 +167,33 @@ class UserService(
             }
             createdAt = saveUpdate.createdAt.toString()
             updatedAt = saveUpdate.updatedAt.toString()
+        }
+    }
+
+    suspend fun deleteUser(request: DeleteUserRequest): UserResponse {
+        val findUser = userRepository.findByIdOrNull(request.userId)?:
+        throw DataNotFound("cannot find user ${request.userId}")
+
+        findUser.id.let {
+            userRepository.deleteById(it.orEmpty())
+        }
+
+        return userResponse {
+            userId = findUser.id.orEmpty()
+            userFullName = findUser.userFullName.orEmpty()
+            userEmail = findUser.userEmail.orEmpty()
+            authProvider = findUser.authProvider.orEmpty()
+            roles += findUser.roles.map {
+                roleResponse {
+                    roleId = it.id.orEmpty()
+                    roleName = it.roleName.orEmpty()
+                    roleDescription = it.roleDescription.orEmpty()
+                    createdAt = it.createdAt.toString()
+                    updatedAt = it.updatedAt.toString()
+                }
+            }
+            createdAt = findUser.createdAt.toString()
+            updatedAt = findUser.updatedAt.toString()
         }
     }
 }
