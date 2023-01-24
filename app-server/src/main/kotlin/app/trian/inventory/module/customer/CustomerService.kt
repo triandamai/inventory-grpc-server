@@ -19,7 +19,7 @@ import java.util.*
 class CustomerService(
     private val customerRepository: CustomerRepository
 ) {
-      fun getListCustomer(request: GetPagingRequest): GetListCustomerResponse {
+    suspend fun getListCustomer(request: GetPagingRequest): GetListCustomerResponse {
         val customers = customerRepository.findAll(
             PageRequest.of(
                 request.page.toInt(),
@@ -43,7 +43,7 @@ class CustomerService(
         }
     }
 
-      fun createNewCustomer(request: CreateNewCustomerRequest): CustomerResponse {
+    suspend fun createNewCustomer(request: CreateNewCustomerRequest): CustomerResponse {
 
         val isCustomerExist = customerRepository.findTopByCustomerEmail(request.customerEmail)
         if (isCustomerExist != null) {
@@ -74,7 +74,7 @@ class CustomerService(
         }
     }
 
-      fun updateCustomer(request: UpdateCustomerRequest): CustomerResponse {
+    suspend fun updateCustomer(request: UpdateCustomerRequest): CustomerResponse {
         val findCustomer = customerRepository.findByIdOrNull(request.customerId)
             ?: throw DataNotFound("Customer tidak ditemukan!")
 
@@ -98,7 +98,7 @@ class CustomerService(
         }
     }
 
-      fun deleteCustomer(request: DeleteCustomerRequest): CustomerResponse {
+    suspend fun deleteCustomer(request: DeleteCustomerRequest): CustomerResponse {
         val findCustomer = customerRepository.findByIdOrNull(request.customerId)
             ?: throw DataNotFound("Customer tidak ditemukan!")
 

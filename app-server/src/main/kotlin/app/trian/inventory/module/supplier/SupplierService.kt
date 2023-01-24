@@ -19,7 +19,7 @@ import java.util.*
 class SupplierService(
     private val supplierRepository: SupplierRepository
 ) {
-    fun getListSupplier(request: GetPagingRequest): GetListSupplierResponse {
+    suspend fun getListSupplier(request: GetPagingRequest): GetListSupplierResponse {
         val suppliers = supplierRepository.findAll(
             PageRequest.of(
                 request.page.toInt(),
@@ -38,7 +38,7 @@ class SupplierService(
         }
     }
 
-    fun createNewSupplier(request: CreateNewSupplierRequest): SupplierResponse {
+    suspend fun createNewSupplier(request: CreateNewSupplierRequest): SupplierResponse {
         val isSupplierExist = supplierRepository.findTopBySupplierEmail(request.supplierEmail)
         if (isSupplierExist != null) {
             throw DataExist("Email ${request.supplierEmail} sudah digunakan silahkan gunakan Email lain")
@@ -70,7 +70,7 @@ class SupplierService(
         }
     }
 
-    fun updateSupplier(request: UpdateSupplierRequest): SupplierResponse {
+    suspend fun updateSupplier(request: UpdateSupplierRequest): SupplierResponse {
         val findSupplier = supplierRepository.findByIdOrNull(request.supplierId)
             ?: throw DataNotFound("Tidak dapat menemukan sata supplier, atau data sudah dihapus")
 
@@ -97,7 +97,7 @@ class SupplierService(
         }
     }
 
-    fun deleteSupplier(request: DeleteSupplierRequest): SupplierResponse {
+    suspend fun deleteSupplier(request: DeleteSupplierRequest): SupplierResponse {
         val findSuplier = supplierRepository.findByIdOrNull(request.customerId)
             ?: throw DataNotFound("Tidak dapat menemukan sata supplier, atau data sudah dihapus")
 

@@ -14,7 +14,7 @@ class AuthenticationService(
     private val userRepository: UserRepository,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
-    fun signInWithEmailAndPassword(request: SignInRequest): SignInResponse {
+    suspend fun signInWithEmailAndPassword(request: SignInRequest): SignInResponse {
         val userData = userRepository.findTopByUserEmail(request.email)
             ?: throw UnAuthorized("Cannot find user with email ${request.email}")
 
@@ -32,7 +32,7 @@ class AuthenticationService(
         }
     }
 
-    fun signInWithGoogle(request: SignInRequest): SignInResponse {
+    suspend fun signInWithGoogle(request: SignInRequest): SignInResponse {
         //
         return signInResponse {
 
