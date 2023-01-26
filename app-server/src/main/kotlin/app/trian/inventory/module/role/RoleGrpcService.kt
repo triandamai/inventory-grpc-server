@@ -1,6 +1,7 @@
 package app.trian.inventory.module.role
 
 import app.trian.inventory.module.error.DataNotFound
+import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.role.*
 import net.devh.boot.grpc.server.service.GrpcService
@@ -15,6 +16,7 @@ class RoleGrpcService(
 
     override suspend fun getListRole(request: GetPagingRequest): GetListRoleResponse = roleService.getListRole(request)
 
+    override suspend fun getDetailRoleById(request: GetById): RoleResponse = roleService.getDetailRoleById(request)
     override suspend fun createNewRole(request: CreateRoleRequest): RoleResponse = roleService.createNewRole(request)
 
     override suspend fun updateRole(request: UpdateRoleRequest): RoleResponse = roleService.updateRole(request)
