@@ -17,6 +17,7 @@ class RoleGrpcService(
     override suspend fun getListRole(request: GetPagingRequest): GetListRoleResponse = roleService.getListRole(request)
 
     override suspend fun getDetailRoleById(request: GetById): RoleResponse = roleService.getDetailRoleById(request)
+
     override suspend fun createNewRole(request: CreateRoleRequest): RoleResponse = roleService.createNewRole(request)
 
     override suspend fun updateRole(request: UpdateRoleRequest): RoleResponse = roleService.updateRole(request)

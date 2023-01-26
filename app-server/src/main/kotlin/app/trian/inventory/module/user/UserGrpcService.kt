@@ -3,6 +3,7 @@ package app.trian.inventory.module.user
 
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.user.AssignRoleRequest
+import app.trian.inventory.v1.user.CreateUserByAdminRequest
 import app.trian.inventory.v1.user.CreateUserRequest
 import app.trian.inventory.v1.user.DeleteUserRequest
 import app.trian.inventory.v1.user.GetListUserResponse
@@ -25,7 +26,7 @@ class UserGrpcService(
         return super.uploadImageUser(requests)
     }
 
-    override suspend fun addUserByAdmin(request: CreateUserRequest): UserResponse = userService.addUserByAdmin(request)
+    override suspend fun addUserByAdmin(request: CreateUserByAdminRequest): UserResponse = userService.addUserByAdmin(request)
 
     override suspend fun assignRoleUser(request: AssignRoleRequest): UserResponse = userService.assignRoleUser(request)
 

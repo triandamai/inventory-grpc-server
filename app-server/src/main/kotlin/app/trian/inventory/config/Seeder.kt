@@ -3,6 +3,7 @@ package app.trian.inventory.config
 import app.trian.inventory.module.permission.Permission
 import app.trian.inventory.module.permission.PermissionRepository
 import app.trian.inventory.module.role.Role
+import app.trian.inventory.module.role.RoleRepository
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
@@ -11,7 +12,8 @@ import java.util.UUID
 
 @Component
 class Seeder(
-    private val permissionRepository: PermissionRepository
+    private val permissionRepository: PermissionRepository,
+    private val roleRepository: RoleRepository
 ):ApplicationRunner {
     override fun run(args: ApplicationArguments?) {
         val date = Date()
@@ -146,9 +148,19 @@ class Seeder(
                 updatedAt = date
             )
         )
-        permissionRepository.saveAll(
+       val savedPermission =  permissionRepository.saveAll(
             permissions
         )
+
+        val role = Role(
+            roleName = "SUPER_ADMIN",
+            roleDescription = "Khusus buat Super Admin",
+            createdAt = date,
+            updatedAt = date
+        )
+
+        val savedRole = roleRepository.save(role)
+
 
 
     }

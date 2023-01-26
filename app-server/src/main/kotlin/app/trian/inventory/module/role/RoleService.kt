@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
+import javax.transaction.Transactional
 
 @Service
 class RoleService(
@@ -152,11 +153,13 @@ class RoleService(
         }
     }
 
+    //https://stackoverflow.com/questions/22821695/how-to-fix-hibernate-lazyinitializationexception-failed-to-lazily-initialize-a
+    @Transactional
     suspend fun deleteRole(request: DeleteRoleRequest): RoleResponse {
         val findRoleById =
             roleRepository.findByIdOrNull(request.roleId) ?: throw DataNotFound("cannot find role ${request.roleId}")
 
-        findRoleById.id?.let { roleRepository.deleteById(it) }
+      roleRepository.deleteById(request.roleId)
 
         return roleResponse {
             roleId = findRoleById.id.orEmpty()

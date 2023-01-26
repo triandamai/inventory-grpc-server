@@ -64,11 +64,10 @@ class RoleController(
     @PutMapping(
         value = ["/role"],
         consumes = ["application/json"],
-        produces = ["applicatin/json"]
+        produces = ["application/json"]
     )
     suspend fun updateRole(
-        @RequestBody request: UpdateRoleRequest,
-        @PathVariable(name = "roleId") roleId:String
+        @RequestBody request: UpdateRoleRequest
     )= coroutineScope {
         roleService.updateRole(
             request
@@ -77,7 +76,6 @@ class RoleController(
 
     @DeleteMapping(
         value = ["/role/{roleId}"],
-        consumes = ["application/json"],
         produces = ["application/json"]
     )
     suspend fun deleteRole(
