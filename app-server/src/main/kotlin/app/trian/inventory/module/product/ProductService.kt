@@ -86,19 +86,19 @@ class ProductService(
             updatedAt = saveProduct.updatedAt.toString()
         }
     }
-suspend fun updateCategory(request: UpdateProductRequest): ProductResponse {
-    val findCategory = productRepository.findByIdOrNull(request.productId.toString())?:
-    throw DataNotFound("cannot find category ${request.productId}")
+suspend fun updateProduct(request: UpdateProductRequest): ProductResponse {
+    val findPoduct = productRepository.findByIdOrNull(request.productId.toString())?:
+    throw DataNotFound("cannot find product ${request.productId}")
 
     val updateProduct = with(request){
-        findCategory.copy(
-            productName = findCategory.productName,
-            productDescription = findCategory.productDescription,
-            productInboundPrice = findCategory.productInboundPrice,
-            productOutboundPrice = findCategory.productOutboundPrice,
-            productUnit = findCategory.productUnit,
-            productImage = findCategory.productImage,
-            productStock = findCategory.productStock,
+        findPoduct.copy(
+            productName = findPoduct.productName,
+            productDescription = findPoduct.productDescription,
+            productInboundPrice = findPoduct.productInboundPrice,
+            productOutboundPrice = findPoduct.productOutboundPrice,
+            productUnit = findPoduct.productUnit,
+            productImage = findPoduct.productImage,
+            productStock = findPoduct.productStock,
             updatedAt = Date()
 
         )

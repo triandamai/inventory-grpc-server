@@ -13,7 +13,7 @@ class ProductGrpcService(
 
     override suspend fun createNewProduct(request: CreateProductRequest): ProductResponse  = productService.createNewCategory(request)
 
-    override suspend fun updateProduct(request: UpdateProductRequest): ProductResponse  = productService.updateCategory(request)
+    override suspend fun updateProduct(request: UpdateProductRequest): ProductResponse  = productService.updateProduct(request)
 
     override suspend fun deleteProduct(request: DeleteProductRequest): ProductResponse= productService.deleteProduct(request)
 }
