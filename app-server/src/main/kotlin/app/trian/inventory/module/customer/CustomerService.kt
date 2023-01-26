@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
+import javax.transaction.Transactional
 
 @Service
 class CustomerService(
@@ -98,6 +99,7 @@ class CustomerService(
         }
     }
 
+    @Transactional
     suspend fun deleteCustomer(request: DeleteCustomerRequest): CustomerResponse {
         val findCustomer = customerRepository.findByIdOrNull(request.customerId)
             ?: throw DataNotFound("Customer tidak ditemukan!")

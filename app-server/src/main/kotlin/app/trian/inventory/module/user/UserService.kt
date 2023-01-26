@@ -5,13 +5,25 @@ import app.trian.inventory.module.error.DataNotFound
 import app.trian.inventory.module.role.RoleRepository
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.role.roleResponse
-import app.trian.inventory.v1.user.*
+import app.trian.inventory.v1.user.AssignRoleRequest
+import app.trian.inventory.v1.user.CreateUserByAdminRequest
+import app.trian.inventory.v1.user.CreateUserRequest
+import app.trian.inventory.v1.user.DeleteUserRequest
+import app.trian.inventory.v1.user.GetListUserResponse
+import app.trian.inventory.v1.user.UpdateUserRequest
+import app.trian.inventory.v1.user.UserImageUploadRequest
+import app.trian.inventory.v1.user.UserImageUploadResponse
+import app.trian.inventory.v1.user.UserResponse
+import app.trian.inventory.v1.user.getListUserResponse
+import app.trian.inventory.v1.user.userImageUploadResponse
+import app.trian.inventory.v1.user.userResponse
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
+import javax.transaction.Transactional
 
 @Service
 class UserService(
@@ -19,14 +31,14 @@ class UserService(
     private val roleRepository: RoleRepository,
     private val passwordEncoder: BCryptPasswordEncoder
 ) {
-     suspend fun getListUser(request: GetPagingRequest): GetListUserResponse {
+    suspend fun getListUser(request: GetPagingRequest): GetListUserResponse {
         val dataUsers = userRepository.findAll(
             PageRequest.of(
                 request.page.toInt(),
                 50
             )
         )
-         if (dataUsers.isEmpty) throw DataNotFound("Tidak ditemukan satupun data")
+        if (dataUsers.isEmpty) throw DataNotFound("Tidak ditemukan satupun data")
 
         return getListUserResponse {
             totalItem = 0// dataUsers.totalElements
@@ -55,16 +67,17 @@ class UserService(
         }
     }
 
-     suspend fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
-        return userImageUploadResponse {  }
+    suspend fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
+        return userImageUploadResponse { }
     }
 
-      fun addUserByAdmin(request: CreateUserRequest): UserResponse {
+    suspend fun addUserByAdmin(request: CreateUserByAdminRequest): UserResponse {
         val findUserByEmail = userRepository.findTopByUserEmail(request.email)
 
-        if(findUserByEmail != null){
+        if (findUserByEmail != null) {
             throw DataExist("Email ${request.email} sudah terdaftar silahkan gunakan email lain!")
         }
+        val role = roleRepository.findByIdOrNull(request.roleId)
 
         val dataPayload = User()
         val savedData = userRepository.save(
@@ -73,8 +86,9 @@ class UserService(
                 userEmail = request.email,
                 userPassword = passwordEncoder.encode(request.password),
                 userFullName = request.fullName,
+                roles = if (role == null) listOf() else listOf(role),
                 createdAt = Date(),
-                updatedAt = Date()
+                updatedAt = Date(),
             )
         )
         return userResponse {
@@ -95,9 +109,9 @@ class UserService(
         }
     }
 
-      suspend fun assignRoleUser(request: AssignRoleRequest): UserResponse {
-        val findUser = userRepository.findByIdOrNull(request.userId) ?:
-        throw DataNotFound("Tidak dapat menemukan user yang di assign")
+    suspend fun assignRoleUser(request: AssignRoleRequest): UserResponse {
+        val findUser = userRepository.findByIdOrNull(request.userId)
+            ?: throw DataNotFound("Tidak dapat menemukan user yang di assign")
 
         val finRoles = roleRepository.findAllById(
             request.rolesList
@@ -110,7 +124,7 @@ class UserService(
         val savedData = userRepository.save(updateData)
 
         return userResponse {
-            userId=savedData.id.orEmpty()
+            userId = savedData.id.orEmpty()
             userFullName = savedData.userFullName.orEmpty()
             userEmail = savedData.userEmail.orEmpty()
             roles += savedData.roles.map {
@@ -128,10 +142,10 @@ class UserService(
     }
 
     suspend fun updateUser(request: UpdateUserRequest): UserResponse {
-        val findUser =  userRepository.findByIdOrNull(request.userId)?:
-        throw DataNotFound("cannot find ${request.userId}")
+        val findUser =
+            userRepository.findByIdOrNull(request.userId) ?: throw DataNotFound("cannot find ${request.userId}")
 
-        val updateUser = with(request){
+        val updateUser = with(request) {
             findUser.copy(
                 userFullName = if (userFullName.isNullOrEmpty()) findUser.userFullName else userFullName,
                 userEmail = if (userEmail.isNullOrEmpty()) findUser.userEmail else userEmail,
@@ -160,9 +174,10 @@ class UserService(
         }
     }
 
+    @Transactional
     suspend fun deleteUser(request: DeleteUserRequest): UserResponse {
-        val findUser = userRepository.findByIdOrNull(request.userId)?:
-        throw DataNotFound("cannot find user ${request.userId}")
+        val findUser =
+            userRepository.findByIdOrNull(request.userId) ?: throw DataNotFound("cannot find user ${request.userId}")
 
         findUser.id.let {
             userRepository.deleteById(it.orEmpty())
