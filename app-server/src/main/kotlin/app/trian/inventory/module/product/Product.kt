@@ -17,21 +17,25 @@ data class Product(
         strategy = "org.hibernate.id.UUIDGenerator"
     )
     var id:String? = null,
-    var productName:String,
-    var productDescription:String,
-    var productImage:String,
-    var productUnit:String,
-    var productOutboundPrice:Int,
-    var productInboundPrice:Int,
-    var productStock:Int,
+    @Column(nullable = false)
+    var productName:String? = null,
+    var productDescription:String? = null,
+    var productImage:String? = null,
+    @Column(nullable = false)
+    var productUnit:String? = null,
+    @Column(nullable = false)
+    var productOutboundPrice:Int = 0,
+    @Column(nullable = false)
+    var productInboundPrice:Int = 0,
+    var productStock:Int = 0,
     @ManyToMany(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REFRESH],
     )
     var category: List<Category> = listOf(),
     @Temporal(TemporalType.TIMESTAMP)
-    var createdAt: Date,
+    var createdAt: Date? = null,
     @Temporal(TemporalType.TIMESTAMP)
-    var updatedAt: Date
+    var updatedAt: Date? = null
 
 )
