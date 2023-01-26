@@ -2,6 +2,12 @@ package app.trian.inventory.module.product
 
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.product.*
+import app.trian.inventory.v1.product.CreateProductRequest
+import app.trian.inventory.v1.product.DeleteProductRequest
+import app.trian.inventory.v1.product.GetListProductResponse
+import app.trian.inventory.v1.product.ProductGrpcKt
+import app.trian.inventory.v1.product.ProductResponse
+import app.trian.inventory.v1.product.UpdateProductRequest
 import net.devh.boot.grpc.server.service.GrpcService
 
 @GrpcService

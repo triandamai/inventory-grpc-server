@@ -1,9 +1,9 @@
-package app.trian.inventory.module.supplier
+package app.trian.inventory.module.product
 
-import app.trian.inventory.v1.customer.CreateNewCustomerRequest
-import app.trian.inventory.v1.customer.UpdateCustomerRequest
-import app.trian.inventory.v1.customer.deleteCustomerRequest
 import app.trian.inventory.v1.getPagingRequest
+import app.trian.inventory.v1.product.CreateProductRequest
+import app.trian.inventory.v1.product.UpdateProductRequest
+import app.trian.inventory.v1.product.deleteProductRequest
 import app.trian.inventory.v1.supplier.CreateNewSupplierRequest
 import app.trian.inventory.v1.supplier.UpdateSupplierRequest
 import app.trian.inventory.v1.supplier.deleteSupplierRequest
@@ -22,17 +22,17 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(
     value = ["/api/v1"]
 )
-class SupplierController(
-    private val supplierService: SupplierService
+class ProductController(
+    private val productService: ProductService
 ) {
     @GetMapping(
-        value = ["/suppliers"],
+        value = ["/products"],
         produces = ["application/json"]
     )
-    suspend fun getListSupplier(
+    suspend fun getListProduct(
         @RequestParam(name = "page") nextPage: Long? = 0
     ) = coroutineScope {
-        supplierService.getListSupplier(
+        productService.getListProduct(
             getPagingRequest {
                 page = nextPage ?: 0
             }
@@ -40,35 +40,35 @@ class SupplierController(
     }
 
     @PostMapping(
-        value = ["/supplier"],
+        value = ["/product"],
         produces = ["application/json"],
         consumes = ["application/json"]
     )
-    suspend fun createNewSupplier(@RequestBody request: CreateNewSupplierRequest) = coroutineScope {
-        supplierService.createNewSupplier(request)
+    suspend fun createNewProduct(@RequestBody request: CreateProductRequest) = coroutineScope {
+        productService.createNewProduct(request)
     }
 
     @PutMapping(
-        value = ["/supplier"],
+        value = ["/product"],
         produces = ["application/json"],
         consumes = ["application/json"]
     )
     suspend fun updateCustomer(
-        @RequestBody request: UpdateSupplierRequest
+        @RequestBody request: UpdateProductRequest
     ) = coroutineScope {
-        supplierService.updateSupplier(
+        productService.updateProduct(
             request
         )
     }
 
     @DeleteMapping(
-        value = ["/supplier/{supplierId}"],
+        value = ["/customer/{productId}"],
         produces = ["application/json"]
     )
-    suspend fun deleteCustomer(@PathVariable(name = "supplierId") resourceId: String) = coroutineScope {
-        supplierService.deleteSupplier(
-            deleteSupplierRequest {
-                customerId = resourceId
+    suspend fun deleteCustomer(@PathVariable(name = "productId") resourceId: String) = coroutineScope {
+        productService.deleteProduct(
+            deleteProductRequest {
+                productId = resourceId
             }
         )
     }

@@ -5,6 +5,7 @@ import app.trian.inventory.module.user.UserRepository
 import app.trian.inventory.v1.authentication.SignInRequest
 import app.trian.inventory.v1.authentication.SignInResponse
 import app.trian.inventory.v1.authentication.signInResponse
+import app.trian.inventory.v1.role.roleResponse
 import app.trian.inventory.v1.user.userResponse
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
@@ -25,9 +26,22 @@ class AuthenticationService(
 
         return signInResponse {
             success = true
-            message= "yeeey"
+            message= "Login success"
             user = userResponse {
+                userId = userData.id.orEmpty()
                 userFullName = userData.userFullName.orEmpty()
+                userEmail = userData.userEmail.orEmpty()
+                createdAt = userData.createdAt.toString()
+                updatedAt = userData.updatedAt.toString()
+                roles += userData.roles.map {
+                    roleResponse {
+                        roleId = it.id.orEmpty()
+                        roleName = it.roleName.orEmpty()
+                        roleDescription = it.roleDescription.orEmpty()
+                        createdAt = it.createdAt.toString()
+                        updatedAt = it.updatedAt.toString()
+                    }
+                }
             }
         }
     }
