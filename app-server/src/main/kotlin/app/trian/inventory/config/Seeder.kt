@@ -4,17 +4,28 @@ import app.trian.inventory.module.permission.Permission
 import app.trian.inventory.module.permission.PermissionRepository
 import app.trian.inventory.module.role.Role
 import app.trian.inventory.module.role.RoleRepository
+import app.trian.inventory.module.user.User
+import app.trian.inventory.module.user.UserRepository
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.core.annotation.Order
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 import java.util.Date
 import java.util.UUID
+import javax.transaction.Transactional
 
 @Component
+@Order(1)
 class Seeder(
     private val permissionRepository: PermissionRepository,
-    private val roleRepository: RoleRepository
-):ApplicationRunner {
+    private val roleRepository: RoleRepository,
+    private val userRepository: UserRepository,
+    private val passwordEncoder: BCryptPasswordEncoder
+) : ApplicationRunner {
+
+    @Transactional
     override fun run(args: ApplicationArguments?) {
         val date = Date()
 
@@ -148,19 +159,42 @@ class Seeder(
                 updatedAt = date
             )
         )
-       val savedPermission =  permissionRepository.saveAll(
+        permissionRepository.saveAll(
             permissions
         )
 
+        val permission = permissionRepository.findAll()
+
+        val roleId = "26ff6c62-a447-4e7f-941e-e3c866bd69bf"
         val role = Role(
+            id = roleId,
             roleName = "SUPER_ADMIN",
             roleDescription = "Khusus buat Super Admin",
             createdAt = date,
             updatedAt = date
         )
+       val saved =  roleRepository.save(role)
+        roleRepository.save(saved.copy(
+            permissions  = permission.map { it },
+        ))
 
-        val savedRole = roleRepository.save(role)
 
+
+        val user = User(
+            id = "26ff6c62-a447-4e7f-941e-e3c866bd69bc",
+            userFullName = "Trian Damai",
+            userPassword = passwordEncoder.encode("admin123"),
+            userEmail = "trian@gmail.com",
+            authProvider = "EMAIL",
+            createdAt = Date(),
+            updatedAt = Date()
+        )
+
+
+        val savedUser = userRepository.save(user)
+        userRepository.save(savedUser.copy(
+            roles = listOf(saved)
+        ))
 
 
     }

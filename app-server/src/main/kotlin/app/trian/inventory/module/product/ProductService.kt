@@ -57,7 +57,7 @@ class ProductService(
         }
     }
 
-    suspend fun createNewCategory(request: CreateProductRequest): ProductResponse {
+    suspend fun createNewProduct(request: CreateProductRequest): ProductResponse {
         val date = Date()
         val product = Product()
         val saveProduct = productRepository.save(
