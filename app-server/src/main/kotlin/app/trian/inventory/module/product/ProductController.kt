@@ -4,9 +4,6 @@ import app.trian.inventory.v1.getPagingRequest
 import app.trian.inventory.v1.product.CreateProductRequest
 import app.trian.inventory.v1.product.UpdateProductRequest
 import app.trian.inventory.v1.product.deleteProductRequest
-import app.trian.inventory.v1.supplier.CreateNewSupplierRequest
-import app.trian.inventory.v1.supplier.UpdateSupplierRequest
-import app.trian.inventory.v1.supplier.deleteSupplierRequest
 import kotlinx.coroutines.coroutineScope
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping

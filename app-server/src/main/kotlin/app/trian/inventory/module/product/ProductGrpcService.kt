@@ -1,7 +1,6 @@
 package app.trian.inventory.module.product
 
 import app.trian.inventory.v1.GetPagingRequest
-import app.trian.inventory.v1.product.*
 import app.trian.inventory.v1.product.CreateProductRequest
 import app.trian.inventory.v1.product.DeleteProductRequest
 import app.trian.inventory.v1.product.GetListProductResponse
@@ -17,7 +16,7 @@ class ProductGrpcService(
 
     override suspend fun getListProduct(request: GetPagingRequest): GetListProductResponse = productService.getListProduct(request)
 
-    override suspend fun createNewProduct(request: CreateProductRequest): ProductResponse  = productService.createNewCategory(request)
+    override suspend fun createNewProduct(request: CreateProductRequest): ProductResponse  = productService.createNewProduct(request)
 
     override suspend fun updateProduct(request: UpdateProductRequest): ProductResponse  = productService.updateProduct(request)
 
