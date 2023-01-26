@@ -20,8 +20,8 @@ class UserGrpcService(
     private val userService: UserService
 ):UserGrpcKt.UserCoroutineImplBase(){
 
-    override suspend fun getListUser(request: GetPagingRequest): GetListUserResponse = userService.getListUser(request)
 
+    override suspend fun getListUser(request: GetPagingRequest): GetListUserResponse = userService.getListUser(request)
     override suspend fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
         return super.uploadImageUser(requests)
     }
