@@ -1,5 +1,6 @@
 package app.trian.inventory.module.user
 
+import app.trian.inventory.v1.getById
 import app.trian.inventory.v1.getPagingRequest
 import app.trian.inventory.v1.user.AssignRoleRequest
 import app.trian.inventory.v1.user.CreateUserByAdminRequest
@@ -8,6 +9,7 @@ import app.trian.inventory.v1.user.deleteUserRequest
 import kotlinx.coroutines.coroutineScope
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -35,14 +37,26 @@ class UserController(
         )
     }
 
+    @GetMapping(
+        value = ["/user/{userId}"],
+        produces = ["application/json"]
+    )
+    suspend fun getDetailUser(@PathVariable(name = "userId") userId: String = "") = coroutineScope {
+        userService.getUserBydId(
+            getById {
+                resourceId = userId
+            }
+        )
+    }
+
     @PostMapping(
-        value = ["upload-image"],
+        value = ["/upload-image"],
         produces = ["application/json"]
     )
     suspend fun uploadImageUser() = coroutineScope {  }
 
     @PostMapping(
-        value = ["add-user"],
+        value = ["/add-user"],
         produces = ["application/json"]
     )
     suspend fun addUserByAdmin(@RequestBody request: CreateUserByAdminRequest) = coroutineScope {
@@ -58,7 +72,7 @@ class UserController(
     }
 
     @PutMapping(
-        value = ["update-user"],
+        value = ["/user"],
         produces = ["application/json"]
     )
     suspend fun updateUser(@RequestBody request: UpdateUserRequest)= coroutineScope {
@@ -66,7 +80,7 @@ class UserController(
     }
 
     @DeleteMapping(
-        value = ["delete-user/{userId}"],
+        value = ["/user/{userId}"],
         produces = ["application/json"]
     )
     suspend fun deleteUser(@RequestParam(name = "userId") paramUserId:String) = coroutineScope {
