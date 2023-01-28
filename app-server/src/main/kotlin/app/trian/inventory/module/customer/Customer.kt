@@ -13,6 +13,7 @@ data class Customer(
         strategy = "org.hibernate.id.UUIDGenerator"
     )
     var id:String? = null,
+    var customerAddress:String?=null,
     var customerFullName:String?=null,
     var customerEmail:String?=null,
     var customerPhoneNumber: String?=null,

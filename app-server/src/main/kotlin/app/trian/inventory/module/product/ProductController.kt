@@ -50,7 +50,7 @@ class ProductController(
         produces = ["application/json"],
         consumes = ["application/json"]
     )
-    suspend fun updateCustomer(
+    suspend fun updateProduct(
         @RequestBody request: UpdateProductRequest
     ) = coroutineScope {
         productService.updateProduct(
@@ -59,10 +59,10 @@ class ProductController(
     }
 
     @DeleteMapping(
-        value = ["/customer/{productId}"],
+        value = ["/product/{productId}"],
         produces = ["application/json"]
     )
-    suspend fun deleteCustomer(@PathVariable(name = "productId") resourceId: String) = coroutineScope {
+    suspend fun deleteProduct(@PathVariable(name = "productId") resourceId: String) = coroutineScope {
         productService.deleteProduct(
             deleteProductRequest {
                 productId = resourceId

@@ -2,6 +2,7 @@ package app.trian.inventory.module.customer
 
 import app.trian.inventory.module.error.DataExist
 import app.trian.inventory.module.error.DataNotFound
+import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.customer.CreateNewCustomerRequest
 import app.trian.inventory.v1.customer.CustomerResponse
@@ -27,12 +28,16 @@ class CustomerService(
                 50
             )
         )
+        if(customers.isEmpty){
+            throw DataNotFound("Tidak menemukan satupun data")
+        }
         return getListCustomerResponse {
             totalItem = customers.totalElements
             totalPage = customers.totalPages.toLong()
             data += customers.content.map {
                 customerResponse {
                     customerId = it.id.orEmpty()
+                    customerAddress = it.customerAddress.orEmpty()
                     customerEmail = it.customerEmail.orEmpty()
                     customerFullName = it.customerFullName.orEmpty()
                     customerPhoneNumber = it.customerPhoneNumber.orEmpty()
@@ -42,6 +47,20 @@ class CustomerService(
             }
             currentPage = customers.number.toLong()
         }
+    }
+
+     suspend fun getCustomerById(request: GetById): CustomerResponse {
+         val findCustomer = customerRepository.findByIdOrNull(request.resourceId)
+             ?: throw DataNotFound("Tidak dapat menemukan data")
+         return customerResponse {
+             customerId = findCustomer.id.orEmpty()
+             customerAddress=findCustomer.customerAddress.orEmpty()
+             customerEmail = findCustomer.customerEmail.orEmpty()
+             customerFullName = findCustomer.customerFullName.orEmpty()
+             customerPhoneNumber = findCustomer.customerPhoneNumber.orEmpty()
+             createdAt = findCustomer.createdAt.toString()
+             updatedAt = findCustomer.updatedAt.toString()
+         }
     }
 
     suspend fun createNewCustomer(request: CreateNewCustomerRequest): CustomerResponse {
@@ -57,6 +76,7 @@ class CustomerService(
         val saveData = customerRepository.save(
             payloadData.copy(
                 id = null,
+                customerAddress=request.customerAddress,
                 customerEmail = request.customerEmail,
                 customerFullName = request.customerFullName,
                 customerPhoneNumber = request.customerPhoneNumber,
@@ -67,6 +87,7 @@ class CustomerService(
 
         return customerResponse {
             customerId = saveData.id.orEmpty()
+            customerAddress=saveData.customerAddress.orEmpty()
             customerEmail = saveData.customerEmail.orEmpty()
             customerFullName = saveData.customerFullName.orEmpty()
             customerPhoneNumber = saveData.customerPhoneNumber.orEmpty()
@@ -81,6 +102,7 @@ class CustomerService(
 
         val updatedDataRequest = with(request) {
             findCustomer.copy(
+                customerAddress = if(customerAddress.isNullOrEmpty()) findCustomer.customerAddress else customerAddress,
                 customerEmail = if (customerEmail.isNullOrEmpty()) findCustomer.customerEmail else customerEmail,
                 customerFullName = if (customerFullName.isNullOrEmpty()) findCustomer.customerFullName else customerFullName,
                 customerPhoneNumber = if (customerPhoneNumber.isNullOrEmpty()) findCustomer.customerPhoneNumber else customerPhoneNumber,
@@ -91,6 +113,7 @@ class CustomerService(
         val saveData = customerRepository.save(updatedDataRequest)
         return customerResponse {
             customerId = saveData.id.orEmpty()
+            customerAddress=saveData.customerAddress.orEmpty()
             customerEmail = saveData.customerEmail.orEmpty()
             customerFullName = saveData.customerFullName.orEmpty()
             customerPhoneNumber = saveData.customerPhoneNumber.orEmpty()
@@ -109,6 +132,7 @@ class CustomerService(
         }
         return customerResponse {
             customerId = findCustomer.id.orEmpty()
+            customerAddress=findCustomer.customerAddress.orEmpty()
             customerEmail = findCustomer.customerEmail.orEmpty()
             customerFullName = findCustomer.customerFullName.orEmpty()
             customerPhoneNumber = findCustomer.customerPhoneNumber.orEmpty()
