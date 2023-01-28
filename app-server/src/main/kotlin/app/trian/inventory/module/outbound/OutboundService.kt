@@ -1,9 +1,11 @@
 package app.trian.inventory.module.outbound
 
+import app.trian.inventory.module.error.DataNotFound
 import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.GetPagingRequestWithId
 import app.trian.inventory.v1.UpdateStatusRequest
+import app.trian.inventory.v1.customer.customerResponse
 import app.trian.inventory.v1.outbound.CreateNewOutboundRequest
 import app.trian.inventory.v1.outbound.DeleteDetailOutboundRequest
 import app.trian.inventory.v1.outbound.DeleteOutboundRequest
@@ -16,6 +18,9 @@ import app.trian.inventory.v1.outbound.detailOutboundResponse
 import app.trian.inventory.v1.outbound.getListDetailOutboundResponse
 import app.trian.inventory.v1.outbound.getListOutboundResponse
 import app.trian.inventory.v1.outbound.outboundResponse
+import app.trian.inventory.v1.user.userResponse
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -28,8 +33,51 @@ class OutboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListOutbound(request: GetPagingRequest): GetListOutboundResponse {
+        val getListOutbound = outboundRepository.findAll(
+            PageRequest.of(
+                request.page.toInt(),
+                50
+            )
+        )
 
-        return getListOutboundResponse { }
+        if (getListOutbound.isEmpty) throw DataNotFound("Data Tidak Ada")
+
+        return getListOutboundResponse {
+            currentPage = getListOutbound.number.toLong()
+
+            totalItem = getListOutbound.totalElements
+
+            totalPage = getListOutbound.totalPages.toLong()
+
+            data += getListOutbound.content.map {
+                outboundResponse {
+                    outboundId = it.id.orEmpty()
+                    statues = it.status.toLong()
+                    cashier = with(it){
+                        userResponse {
+                            userId = cashier?.id.orEmpty()
+                            userEmail = cashier?.userEmail.orEmpty()
+                            userFullName = cashier?.userFullName.orEmpty()
+                            authProvider = cashier?.authProvider.orEmpty()
+                            createdAt = cashier?.createdAt.toString()
+                            updatedAt = cashier?.updatedAt.toString()
+                        }
+
+                    }
+                    customer = with(it){
+                        customerResponse {
+                            customerId = customer?.id.orEmpty()
+                            customerEmail = customer?.customerEmail.orEmpty()
+                            customerFullName = customer?.customerEmail.orEmpty()
+                            customerPhoneNumber = customer?.customerPhoneNumber.orEmpty()
+                            createdAt = customer?.createdAt.toString()
+                            updatedAt = customer?.updatedAt.toString()
+                        }
+                    }
+                    totalAmount = it.totalAmount.toLong()
+                }
+            }
+        }
     }
 
     /**
@@ -37,7 +85,47 @@ class OutboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListOutboundByCashier(request: GetPagingRequestWithId): GetListOutboundResponse {
-        return getListOutboundResponse { }
+        val getOutboundByCashier = outboundRepository.findAllByCashierId(
+            cashierId = request.resourceId,
+            pageable = PageRequest.of(
+                request.page.toInt(),
+                50
+            )
+        )
+
+        return getListOutboundResponse {
+            totalItem = getOutboundByCashier.totalElements
+            totalPage = getOutboundByCashier.totalPages.toLong()
+            currentPage = getOutboundByCashier.number.toLong()
+
+            data += getOutboundByCashier.content.map {
+                outboundResponse {
+                    outboundId = it.id.orEmpty()
+                    totalAmount = it.totalAmount.toLong()
+                    statues = it.status.toLong()
+                    cashier = with(it){
+                        userResponse {
+                            id = cashier?.id.orEmpty()
+                            userEmail = cashier?.userEmail.orEmpty()
+                            userFullName = cashier?.userFullName.orEmpty()
+                            authProvider = cashier?.authProvider.orEmpty()
+                            createdAt = cashier?.createdAt.toString()
+                            updatedAt = cashier?.updatedAt.toString()
+                        }
+                    }
+                    customer = with(it){
+                        customerResponse {
+                            id = customer?.id.orEmpty()
+                            customerFullName = customer?.customerFullName.orEmpty()
+                            customerEmail = customer?.customerEmail.orEmpty()
+                            customerPhoneNumber =  customer?.customerPhoneNumber.orEmpty()
+                            createdAt = customer?.createdAt.toString()
+                            updatedAt = customer?.updatedAt.toString()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -45,7 +133,50 @@ class OutboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListOutboundByCustomer(request: GetPagingRequestWithId): GetListOutboundResponse {
-        return getListOutboundResponse { }
+        val getListOutboundByCustomer = outboundRepository.findAllByCustomerId(
+            customerId = request.resourceId.orEmpty(),
+            pageable = PageRequest.of(
+                request.page.toInt(),
+                50
+            )
+        )
+        return getListOutboundResponse {
+            currentPage = getListOutboundByCustomer.number.toLong()
+
+            totalItem = getListOutboundByCustomer.totalElements
+
+            totalPage = getListOutboundByCustomer.totalPages.toLong()
+
+            data += getListOutboundByCustomer.content.map {
+                outboundResponse {
+                    outboundId = it.id.orEmpty()
+                    statues = it.status.toLong()
+                    totalAmount = it.totalAmount.toLong()
+                    cashier = with(it){
+                        userResponse {
+                            id = cashier?.id
+                            userFullName = cashier?.userFullName.orEmpty()
+                            userEmail = cashier?.userEmail.orEmpty()
+                            authProvider = cashier?.authProvider.orEmpty()
+                            createdAt = cashier?.createdAt.toString()
+                            updatedAt = cashier?.updatedAt.toString()
+                        }
+                    }
+                    customer = with(it){
+                        customerResponse {
+                            customerId = customer?.id.orEmpty()
+                            customerFullName = customer?.customerFullName.orEmpty()
+                            customerEmail = customer?.customerEmail.orEmpty()
+                            customerPhoneNumber = customer?.customerPhoneNumber.orEmpty()
+                            createdAt = customer?.createdAt.toString()
+                            updatedAt = customer?.updatedAt.toString()
+                        }
+                    }
+                }
+            }
+
+
+        }
     }
 
     /**
