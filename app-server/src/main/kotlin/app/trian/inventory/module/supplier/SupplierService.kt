@@ -2,6 +2,7 @@ package app.trian.inventory.module.supplier
 
 import app.trian.inventory.module.error.DataExist
 import app.trian.inventory.module.error.DataNotFound
+import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.supplier.CreateNewSupplierRequest
 import app.trian.inventory.v1.supplier.DeleteSupplierRequest
@@ -27,14 +28,42 @@ class SupplierService(
             )
         )
 
+        if(suppliers.isEmpty){
+            throw DataNotFound("Tidak ditemukan satupun data")
+        }
 
         return getListSupplierResponse {
             totalItem = suppliers.totalElements
             totalPage = suppliers.totalPages.toLong()
             data += suppliers.map {
-                supplierResponse { }
+                supplierResponse {
+                    supplierId = it.id.orEmpty()
+                    supplierAddress = it.supplierAddress.orEmpty()
+                    supplierOrgName = it.supplierOrgName.orEmpty()
+                    supplierEmail = it.supplierEmail.orEmpty()
+                    supplierFullName = it.supplierFullName.orEmpty()
+                    supplierPhoneNumber = it.supplierPhoneNumber.orEmpty()
+                    createdAt = it.createdAt.toString()
+                    updatedAt = it.updatedAt.toString()
+                }
             }
             currentPage = suppliers.number.toLong()
+        }
+    }
+
+    suspend fun getSupplierById(request: GetById): SupplierResponse {
+        val findSupplier = supplierRepository.findByIdOrNull(request.resourceId)
+            ?: throw DataNotFound("Tidak dapat menemukan data supplier")
+
+        return supplierResponse {
+            supplierId = findSupplier.id.orEmpty()
+            supplierAddress = findSupplier.supplierAddress.orEmpty()
+            supplierOrgName = findSupplier.supplierOrgName.orEmpty()
+            supplierEmail = findSupplier.supplierEmail.orEmpty()
+            supplierFullName = findSupplier.supplierFullName.orEmpty()
+            supplierPhoneNumber = findSupplier.supplierPhoneNumber.orEmpty()
+            createdAt = findSupplier.createdAt.toString()
+            updatedAt = findSupplier.updatedAt.toString()
         }
     }
 
@@ -63,6 +92,7 @@ class SupplierService(
             supplierId = savedData.id.orEmpty()
             supplierAddress = savedData.supplierAddress.orEmpty()
             supplierOrgName = savedData.supplierOrgName.orEmpty()
+            supplierEmail = savedData.supplierEmail.orEmpty()
             supplierFullName = savedData.supplierFullName.orEmpty()
             supplierPhoneNumber = savedData.supplierPhoneNumber.orEmpty()
             createdAt = savedData.createdAt.toString()
@@ -90,6 +120,7 @@ class SupplierService(
             supplierId = savedData.id.orEmpty()
             supplierAddress = savedData.supplierAddress.orEmpty()
             supplierOrgName = savedData.supplierOrgName.orEmpty()
+            supplierEmail = savedData.supplierEmail.orEmpty()
             supplierFullName = savedData.supplierFullName.orEmpty()
             supplierPhoneNumber = savedData.supplierPhoneNumber.orEmpty()
             createdAt = savedData.createdAt.toString()
@@ -108,6 +139,7 @@ class SupplierService(
             supplierId = findSuplier.id.orEmpty()
             supplierAddress = findSuplier.supplierAddress.orEmpty()
             supplierOrgName = findSuplier.supplierOrgName.orEmpty()
+            supplierEmail = findSuplier.supplierEmail.orEmpty()
             supplierFullName = findSuplier.supplierFullName.orEmpty()
             supplierPhoneNumber = findSuplier.supplierPhoneNumber.orEmpty()
             createdAt = findSuplier.createdAt.toString()

@@ -1,6 +1,7 @@
 package app.trian.inventory.module.user
 
 
+import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.user.AssignRoleRequest
 import app.trian.inventory.v1.user.CreateUserByAdminRequest
@@ -22,6 +23,9 @@ class UserGrpcService(
 
 
     override suspend fun getListUser(request: GetPagingRequest): GetListUserResponse = userService.getListUser(request)
+
+    override suspend fun getUserBydId(request: GetById): UserResponse =
+        userService.getUserBydId(request)
     override suspend fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
         return super.uploadImageUser(requests)
     }

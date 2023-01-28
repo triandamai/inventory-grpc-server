@@ -2,6 +2,7 @@ package app.trian.inventory.module.supplier
 
 import app.trian.inventory.module.error.DataExist
 import app.trian.inventory.module.error.DataNotFound
+import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.supplier.CreateNewSupplierRequest
 import app.trian.inventory.v1.supplier.DeleteSupplierRequest
@@ -23,6 +24,8 @@ class SupplierGrpcService(
     override suspend fun getListSupplier(request: GetPagingRequest): GetListSupplierResponse =
         supplierService.getListSupplier(request)
 
+    override suspend fun getSupplierById(request: GetById): SupplierResponse =
+        supplierService.getSupplierById(request)
     override suspend fun createNewSupplier(request: CreateNewSupplierRequest): SupplierResponse =
         supplierService.createNewSupplier(request)
 

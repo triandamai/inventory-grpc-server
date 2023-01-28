@@ -3,6 +3,7 @@ package app.trian.inventory.module.user
 import app.trian.inventory.module.error.DataExist
 import app.trian.inventory.module.error.DataNotFound
 import app.trian.inventory.module.role.RoleRepository
+import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.role.roleResponse
 import app.trian.inventory.v1.user.AssignRoleRequest
@@ -67,6 +68,28 @@ class UserService(
         }
     }
 
+    suspend fun getUserBydId(request: GetById): UserResponse {
+        val findUser = userRepository.findByIdOrNull(request.resourceId)
+            ?: throw DataNotFound("Ditak dapat menemukan user")
+
+
+        return userResponse {
+            userId = findUser.id.orEmpty()
+            userFullName = findUser.userFullName.orEmpty()
+            userEmail = findUser.userEmail.orEmpty()
+            createdAt = findUser.createdAt.toString()
+            updatedAt = findUser.updatedAt.toString()
+            roles += findUser.roles.map {
+                roleResponse {
+                    roleId = it.id.orEmpty()
+                    roleName = it.roleName.orEmpty()
+                    roleDescription = it.roleDescription.orEmpty()
+                    createdAt = it.createdAt.toString()
+                    updatedAt = it.updatedAt.toString()
+                }
+            }
+        }
+    }
     suspend fun uploadImageUser(requests: Flow<UserImageUploadRequest>): UserImageUploadResponse {
         return userImageUploadResponse { }
     }
@@ -77,7 +100,7 @@ class UserService(
         if (findUserByEmail != null) {
             throw DataExist("Email ${request.email} sudah terdaftar silahkan gunakan email lain!")
         }
-        val role = roleRepository.findByIdOrNull(request.roleId)
+        val role = roleRepository.findAllById(request.rolesList)
 
         val dataPayload = User()
         val savedData = userRepository.save(
@@ -86,7 +109,7 @@ class UserService(
                 userEmail = request.email,
                 userPassword = passwordEncoder.encode(request.password),
                 userFullName = request.fullName,
-                roles = if (role == null) listOf() else listOf(role),
+                roles = role?.map { it } ?: listOf(),
                 createdAt = Date(),
                 updatedAt = Date(),
             )

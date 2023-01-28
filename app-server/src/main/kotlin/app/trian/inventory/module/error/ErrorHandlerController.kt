@@ -61,6 +61,20 @@ class ErrorHandlerController {
     )
 
     @ExceptionHandler(
+        value = [DataExist::class],
+    )
+    @ResponseStatus(
+        HttpStatus.BAD_REQUEST
+    )
+    fun datExist(
+        error:DataExist
+    ) = BaseResponse<List<Any>>(
+        code = HttpStatus.BAD_REQUEST.value(),
+        data = listOf(),
+        message = error.message.orEmpty()
+    )
+
+    @ExceptionHandler(
         value = [UnAuthorized::class]
     )
     @ResponseStatus(

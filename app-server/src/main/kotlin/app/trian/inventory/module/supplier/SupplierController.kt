@@ -3,6 +3,7 @@ package app.trian.inventory.module.supplier
 import app.trian.inventory.v1.customer.CreateNewCustomerRequest
 import app.trian.inventory.v1.customer.UpdateCustomerRequest
 import app.trian.inventory.v1.customer.deleteCustomerRequest
+import app.trian.inventory.v1.getById
 import app.trian.inventory.v1.getPagingRequest
 import app.trian.inventory.v1.supplier.CreateNewSupplierRequest
 import app.trian.inventory.v1.supplier.UpdateSupplierRequest
@@ -35,6 +36,20 @@ class SupplierController(
         supplierService.getListSupplier(
             getPagingRequest {
                 page = nextPage ?: 0
+            }
+        )
+    }
+
+    @GetMapping(
+        value = ["/supplier/{supplierId}"],
+        produces = ["application/json"]
+    )
+    suspend fun getSupplierById(
+        @PathVariable(name = "suplierId") supplierId:String =""
+    ) = coroutineScope {
+        supplierService.getSupplierById(
+            getById {
+                resourceId = supplierId
             }
         )
     }
