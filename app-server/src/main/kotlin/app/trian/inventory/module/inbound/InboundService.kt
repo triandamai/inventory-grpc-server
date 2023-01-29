@@ -2,34 +2,28 @@ package app.trian.inventory.module.inbound
 
 import app.trian.inventory.module.detail_inbound.DetailInboundRepository
 import app.trian.inventory.module.error.DataNotFound
+import app.trian.inventory.module.supplier.SupplierRepository
+import app.trian.inventory.module.user.UserRepository
 import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.GetPagingRequestWithId
 import app.trian.inventory.v1.UpdateStatusRequest
 import app.trian.inventory.v1.category.categoryResponse
-import app.trian.inventory.v1.inbound.CreateNewInboundRequest
-import app.trian.inventory.v1.inbound.DeleteDetailInboundRequest
-import app.trian.inventory.v1.inbound.DeleteInboundRequest
-import app.trian.inventory.v1.inbound.DetailInboundResponse
-import app.trian.inventory.v1.inbound.GetListDetailInboundResponse
-import app.trian.inventory.v1.inbound.GetListInboundResponse
-import app.trian.inventory.v1.inbound.InboundResponse
-import app.trian.inventory.v1.inbound.UpdateInboundRequest
-import app.trian.inventory.v1.inbound.detailInboundResponse
-import app.trian.inventory.v1.inbound.getListDetailInboundResponse
-import app.trian.inventory.v1.inbound.getListInboundResponse
-import app.trian.inventory.v1.inbound.inboundResponse
+import app.trian.inventory.v1.inbound.*
 import app.trian.inventory.v1.product.productResponse
 import app.trian.inventory.v1.supplier.supplierResponse
 import app.trian.inventory.v1.user.userResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class InboundService(
     private val inboundRepository: InboundRepository,
-    private val detailInboundRepository: DetailInboundRepository
+    private val detailInboundRepository: DetailInboundRepository,
+    private val userRepository: UserRepository,
+    private val supplierRepository: SupplierRepository
 ) {
     /**
      * ambil semua list inbound
@@ -51,8 +45,8 @@ class InboundService(
             data += getListInbound.content.map {
                 inboundResponse {
                    inboundId = it.id.orEmpty()
-                   totalAmount = it.totalAmount.toLong()
-                   statue = it.status.toLong()
+                   totalAmount = it.totalAmount?.toLong() ?: 0
+                   statue = it.status?.toLong() ?: 0
                    createdAt = it.createdAt.toString()
                    updatedAt = it.updatedAt.toString()
                    cashier = with(it) {
@@ -104,8 +98,8 @@ class InboundService(
             data += getlistByCashierId.content.map {
                 inboundResponse {
                     inboundId = it.id.orEmpty()
-                    totalAmount = it.totalAmount.toLong()
-                    statue = it.status.toLong()
+                    totalAmount = it.totalAmount?.toLong() ?: 0
+                    statue = it.status?.toLong() ?: 0
                     createdAt = it.createdAt.toString()
                     updatedAt = it.updatedAt.toString()
                     cashier = with(it) {
@@ -158,8 +152,8 @@ class InboundService(
             data += getListBySupplierId.content.map {
                 inboundResponse {
                     inboundId = it.id.orEmpty()
-                    totalAmount = it.totalAmount.toLong()
-                    statue = it.status.toLong()
+                    totalAmount = it.totalAmount?.toLong() ?: 0
+                    statue = it.status?.toLong() ?: 0
                     createdAt = it.createdAt.toString()
                     updatedAt = it.updatedAt.toString()
                     cashier = with(it) {
@@ -201,8 +195,8 @@ class InboundService(
 
         return inboundResponse {
             inboundId = getDetailInbound.id.orEmpty()
-            totalAmount = getDetailInbound.totalAmount.toLong()
-            statue = getDetailInbound.status.toLong()
+            totalAmount = getDetailInbound.totalAmount?.toLong() ?: 0
+            statue = getDetailInbound.status?.toLong() ?: 0
             createdAt = getDetailInbound.createdAt.toString()
             updatedAt = getDetailInbound.updatedAt.toString()
             cashier = with(getDetailInbound) {
@@ -316,8 +310,51 @@ class InboundService(
      * 5. save DetailInbound
      * */
     suspend fun createNewInbound(request: CreateNewInboundRequest): InboundResponse {
-        val finCashierId = inboundRepository.findByIdOrNull(request.cashierId)
-        return inboundResponse { }
+        val finCashierId = userRepository.findByIdOrNull(request.cashierId)?:
+        throw DataNotFound("cashier not found")
+
+        val findSupplier = supplierRepository.findByIdOrNull(request.supplierId)?:
+        throw DataNotFound("cashier not found")
+        val inbound = Inbound()
+
+        val saveInbound  = inboundRepository.save(
+            inbound.copy(
+                id = null,
+                status = request.status,
+                totalAmount = request.totalAmount.toInt(),
+                cashier = finCashierId,
+                supplier = findSupplier,
+                createdAt = Date(),
+                updatedAt = Date()
+
+            )
+        )
+        return inboundResponse {
+            inboundId = saveInbound.id.orEmpty()
+            statue = saveInbound.status?.toLong() ?: 0
+            totalAmount = saveInbound.totalAmount?.toLong()?:0
+            createdAt = saveInbound.createdAt.toString()
+            updatedAt = saveInbound.updatedAt.toString()
+            cashier = userResponse {
+                userId = inbound.cashier?.id.orEmpty()
+                userEmail = inbound.cashier?.userEmail.orEmpty()
+                userFullName = inbound.cashier?.userFullName.orEmpty()
+                authProvider = inbound.cashier?.authProvider.orEmpty()
+                createdAt = inbound.cashier?.createdAt.toString()
+                updatedAt = inbound.cashier?.updatedAt.toString()
+            }
+            supplier = supplierResponse {
+                supplierId = inbound.supplier?.id.orEmpty()
+                supplierAddress = inbound.supplier?.supplierAddress.orEmpty()
+                supplierOrgName = inbound.supplier?.supplierOrgName.orEmpty()
+                supplierEmail = inbound.supplier?.supplierEmail.orEmpty()
+                supplierFullName = inbound.supplier?.supplierFullName.orEmpty()
+                supplierPhoneNumber = inbound.supplier?.supplierPhoneNumber.orEmpty()
+                createdAt = inbound.supplier?.createdAt.toString()
+                updatedAt = inbound.supplier?.updatedAt.toString()
+            }
+
+        }
     }
 
     /**
@@ -328,7 +365,49 @@ class InboundService(
      * 5. save detail inbound
      * */
     suspend fun updateInbound(request: UpdateInboundRequest): InboundResponse {
-        return inboundResponse { }
+        val findInbound = inboundRepository.findByIdOrNull(request.inboundId)?:
+        throw DataNotFound("inbound not found")
+
+        val findSupplier = supplierRepository.findByIdOrNull(request.supplierId)?:
+        throw  DataNotFound("supplier not found")
+
+        val updateInbound = with(request){
+            findInbound.copy(
+                id = null,
+                status = if (status.isNullOrEmpty()) findInbound.status else status,
+                totalAmount = totalAmount.toInt(),
+                updatedAt = Date(),
+                supplier = findSupplier
+            )
+        }
+
+        return inboundResponse {
+            inboundId = updateInbound.id.orEmpty()
+            statue = updateInbound.status?.toLong()?:0
+            totalAmount = updateInbound.totalAmount?.toLong()?:0
+            updatedAt = updateInbound.updatedAt.toString()
+            createdAt = updateInbound.createdAt.toString()
+
+            cashier = userResponse {
+                userId = updateInbound.cashier?.id.orEmpty()
+                userEmail = updateInbound.cashier?.userEmail.orEmpty()
+                userFullName = updateInbound.cashier?.userFullName.orEmpty()
+                authProvider = updateInbound.cashier?.authProvider.orEmpty()
+                createdAt = updateInbound.cashier?.createdAt.toString()
+                updatedAt = updateInbound.cashier?.updatedAt.toString()
+            }
+
+            supplier = supplierResponse {
+                supplierId = updateInbound.supplier?.id.orEmpty()
+                supplierAddress = updateInbound.supplier?.supplierAddress.orEmpty()
+                supplierOrgName = updateInbound.supplier?.supplierOrgName.orEmpty()
+                supplierEmail = updateInbound.supplier?.supplierEmail.orEmpty()
+                supplierFullName = updateInbound.supplier?.supplierFullName.orEmpty()
+                supplierPhoneNumber = updateInbound.supplier?.supplierPhoneNumber.orEmpty()
+                createdAt = updateInbound.supplier?.createdAt.toString()
+                updatedAt = updateInbound.supplier?.updatedAt.toString()
+            }
+        }
     }
 
     /**
@@ -337,7 +416,45 @@ class InboundService(
      * 3. save data
      * */
     suspend fun updateStatusInbound(request: UpdateStatusRequest): InboundResponse {
-        return inboundResponse { }
+        val findInbound = inboundRepository.findByIdOrNull(request.transactionId)?:
+        throw DataNotFound("inbound not found")
+
+
+
+        val saveStatus = with(request){
+            findInbound.copy(
+                status = if (status.isNullOrEmpty()) findInbound.status else status
+            )
+        }
+
+
+        return inboundResponse {
+            inboundId = saveStatus.id.orEmpty()
+            statue = saveStatus.status?.toLong()?:0
+            totalAmount = saveStatus.totalAmount?.toLong()?:0
+            updatedAt = saveStatus.updatedAt.toString()
+            createdAt = saveStatus.createdAt.toString()
+
+            cashier = userResponse {
+                userId = saveStatus.cashier?.id.orEmpty()
+                userEmail = saveStatus.cashier?.userEmail.orEmpty()
+                userFullName = saveStatus.cashier?.userFullName.orEmpty()
+                authProvider = saveStatus.cashier?.authProvider.orEmpty()
+                createdAt = saveStatus.cashier?.createdAt.toString()
+                updatedAt = saveStatus.cashier?.updatedAt.toString()
+            }
+
+            supplier = supplierResponse {
+                supplierId = saveStatus.supplier?.id.orEmpty()
+                supplierAddress = saveStatus.supplier?.supplierAddress.orEmpty()
+                supplierOrgName = saveStatus.supplier?.supplierOrgName.orEmpty()
+                supplierEmail = saveStatus.supplier?.supplierEmail.orEmpty()
+                supplierFullName = saveStatus.supplier?.supplierFullName.orEmpty()
+                supplierPhoneNumber = saveStatus.supplier?.supplierPhoneNumber.orEmpty()
+                createdAt = saveStatus.supplier?.createdAt.toString()
+                updatedAt = saveStatus.supplier?.updatedAt.toString()
+            }
+        }
     }
 
     /**
@@ -345,13 +462,52 @@ class InboundService(
      * 2. delete data
      * */
     suspend fun deleteInbound(request: DeleteInboundRequest): InboundResponse {
-        return inboundResponse { }
+        val findInbound = inboundRepository.findByIdOrNull(request.inboundId)?:
+        throw DataNotFound("inbound not found")
+
+        findInbound.id.let {
+            inboundRepository.deleteById(it.orEmpty())
+        }
+
+        return inboundResponse {
+            inboundId = findInbound.id.orEmpty()
+            statue = findInbound.status?.toLong()?:0
+            totalAmount = findInbound.totalAmount?.toLong()?:0
+            updatedAt = findInbound.updatedAt.toString()
+            createdAt = findInbound.createdAt.toString()
+
+            cashier = userResponse {
+                userId = findInbound.cashier?.id.orEmpty()
+                userEmail = findInbound.cashier?.userEmail.orEmpty()
+                userFullName = findInbound.cashier?.userFullName.orEmpty()
+                authProvider = findInbound.cashier?.authProvider.orEmpty()
+                createdAt = findInbound.cashier?.createdAt.toString()
+                updatedAt = findInbound.cashier?.updatedAt.toString()
+            }
+
+            supplier = supplierResponse {
+                supplierId = findInbound.supplier?.id.orEmpty()
+                supplierAddress = findInbound.supplier?.supplierAddress.orEmpty()
+                supplierOrgName = findInbound.supplier?.supplierOrgName.orEmpty()
+                supplierEmail = findInbound.supplier?.supplierEmail.orEmpty()
+                supplierFullName = findInbound.supplier?.supplierFullName.orEmpty()
+                supplierPhoneNumber = findInbound.supplier?.supplierPhoneNumber.orEmpty()
+                createdAt = findInbound.supplier?.createdAt.toString()
+                updatedAt = findInbound.supplier?.updatedAt.toString()
+            }
+        }
     }
 
     /**
      * 1. delete By Ids
      * */
-    suspend fun deleteDetailInbound(request: DeleteDetailInboundRequest): DetailInboundResponse {
-        return detailInboundResponse { }
+    suspend fun deleteDetailInbound(request: DeleteDetailInboundRequest): DeleteDetailInboundResponse {
+
+        userRepository.deleteAllById(request.detailInboundIdList)
+
+        return deleteDetailInboundResponse {
+            success = true
+            detailInboundId += request.detailInboundIdList.map { it }
+        }
     }
 }
