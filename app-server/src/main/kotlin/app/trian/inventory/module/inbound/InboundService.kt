@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
+import javax.transaction.Transactional
 
 @Service
 class InboundService(
@@ -83,8 +84,11 @@ class InboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListInboundByCashier(request: GetPagingRequestWithId): GetListInboundResponse {
-        val getlistByCashierId  = inboundRepository.findAllByCashierId(
-            cashierId = request.resourceId.orEmpty(),
+        val getCashier = userRepository.findByIdOrNull(request.resourceId)?:
+        throw DataNotFound("caier tidak ditemukan")
+
+        val getlistByCashierId  = inboundRepository.findAllByCashier(
+            cashier = getCashier,
             pageable = PageRequest.of(
               request.page.toInt(),
                 50
@@ -136,8 +140,11 @@ class InboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListInboundBySupplier(request: GetPagingRequestWithId): GetListInboundResponse {
-        val getListBySupplierId  = inboundRepository.finAllBySupplierId(
-            supplierId = request.resourceId.orEmpty(),
+        val getSupplier = supplierRepository.findByIdOrNull(request.resourceId)?:
+        throw DataNotFound("Supplier tidak ditemukan")
+
+        val getListBySupplierId  = inboundRepository.finAllBySupplier(
+            supplier =getSupplier,
             pageable = PageRequest.of(
                 request.page.toInt(),
                 50
@@ -190,7 +197,7 @@ class InboundService(
      * if(data == null) throw DataNotFound
      * */
     suspend fun getDetailInbound(request: GetById): InboundResponse {
-        var getDetailInbound = detailInboundRepository.findByInbound(request.resourceId)?:
+        var getDetailInbound = inboundRepository.findByIdOrNull(request.resourceId)?:
         throw  DataNotFound("detail inbound not found")
 
         return inboundResponse {
@@ -229,8 +236,10 @@ class InboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListDetailInbound(request: GetPagingRequestWithId): GetListDetailInboundResponse {
-        val getListDetail = detailInboundRepository.finAllByInboundId(
-            inboundId = request.resourceId,
+        val getInbound = inboundRepository.findByIdOrNull(request.resourceId)?:
+        throw DataNotFound("inbound tidak ditemukan")
+        val getListDetail = detailInboundRepository.findAllByInbound(
+            inbound = getInbound ,
             pageable = PageRequest.of(
                 request.page.toInt(),
                 50
@@ -309,6 +318,7 @@ class InboundService(
      *     detail.forEach{ findProduct  }
      * 5. save DetailInbound
      * */
+    @Transactional
     suspend fun createNewInbound(request: CreateNewInboundRequest): InboundResponse {
         val finCashierId = userRepository.findByIdOrNull(request.cashierId)?:
         throw DataNotFound("cashier not found")

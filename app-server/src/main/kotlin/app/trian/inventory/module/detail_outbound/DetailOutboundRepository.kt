@@ -8,7 +8,7 @@ import org.springframework.data.repository.PagingAndSortingRepository
 
 interface DetailOutboundRepository:PagingAndSortingRepository<DetailOutbound,String> {
 
-    fun findByOutbound(outbound: String) : Outbound?
 
-    fun findAllByOutboundId(outboundId: String, pageable: Pageable):Page<DetailOutbound>
+
+    fun findAllByOutbound(outbound: Outbound, pageable: Pageable):Page<DetailOutbound>
 }

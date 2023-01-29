@@ -16,8 +16,8 @@ data class Outbound(
         strategy = "org.hibernate.id.UUIDGenerator"
     )
     var id:String? = null,
-    var status:String,
-    var totalAmount:Int,
+    var status:String? = null,
+    var totalAmount:Int? = null,
     @ManyToOne(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REFRESH]
@@ -29,7 +29,7 @@ data class Outbound(
     )
     var customer: Customer?=null,
     @Temporal(TemporalType.TIMESTAMP)
-    var createdAt: Date,
+    var createdAt: Date? = null,
     @Temporal(TemporalType.TIMESTAMP)
-    var updatedAt: Date
+    var updatedAt: Date? = null
 )

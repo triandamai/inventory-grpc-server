@@ -1,39 +1,33 @@
 package app.trian.inventory.module.outbound
 
+import app.trian.inventory.module.customer.CustomerRepository
 import app.trian.inventory.module.detail_outbound.DetailOutbound
 import app.trian.inventory.module.detail_outbound.DetailOutboundRepository
 import app.trian.inventory.module.error.DataNotFound
+import app.trian.inventory.module.user.UserRepository
 import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.GetPagingRequestWithId
 import app.trian.inventory.v1.UpdateStatusRequest
 import app.trian.inventory.v1.category.categoryResponse
 import app.trian.inventory.v1.customer.customerResponse
-import app.trian.inventory.v1.outbound.CreateNewOutboundRequest
-import app.trian.inventory.v1.outbound.DeleteDetailOutboundRequest
-import app.trian.inventory.v1.outbound.DeleteOutboundRequest
-import app.trian.inventory.v1.outbound.DetailOutboundResponse
-import app.trian.inventory.v1.outbound.GetListDetailOutboundResponse
-import app.trian.inventory.v1.outbound.GetListOutboundResponse
-import app.trian.inventory.v1.outbound.OutboundResponse
-import app.trian.inventory.v1.outbound.UpdateOutboundRequest
-import app.trian.inventory.v1.outbound.detailOutboundResponse
-import app.trian.inventory.v1.outbound.getListDetailOutboundResponse
-import app.trian.inventory.v1.outbound.getListOutboundResponse
-import app.trian.inventory.v1.outbound.outboundResponse
+import app.trian.inventory.v1.outbound.*
 import app.trian.inventory.v1.product.productResponse
 import app.trian.inventory.v1.user.userResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.util.*
 import javax.transaction.Transactional
 import javax.xml.crypto.Data
 
 @Service
 class OutboundService(
     private val outboundRepository: OutboundRepository,
-    private val detailOutbound: DetailOutboundRepository
+    private val detailOutbound: DetailOutboundRepository,
+    private val userRepository: UserRepository,
+    private val customerRepository: CustomerRepository
 ) {
 
     /**
@@ -60,7 +54,7 @@ class OutboundService(
             data += getListOutbound.content.map {
                 outboundResponse {
                     outboundId = it.id.orEmpty()
-                    statues = it.status.toLong()
+                    statues = it.status?.toLong() ?: 0
                     cashier = with(it){
                         userResponse {
                             userId = cashier?.id.orEmpty()
@@ -82,7 +76,7 @@ class OutboundService(
                             updatedAt = customer?.updatedAt.toString()
                         }
                     }
-                    totalAmount = it.totalAmount.toLong()
+                    totalAmount = it.totalAmount?.toLong() ?: 0
                 }
             }
         }
@@ -93,8 +87,11 @@ class OutboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListOutboundByCashier(request: GetPagingRequestWithId): GetListOutboundResponse {
-        val getOutboundByCashier = outboundRepository.findAllByCashierId(
-            cashierId = request.resourceId,
+       val getCashier = userRepository.findByIdOrNull(request.resourceId)?:
+       throw DataNotFound("Cashier tidak ditemkan")
+
+        val getOutboundByCashier = outboundRepository.findAllByCashier(
+            cashier = getCashier,
             pageable = PageRequest.of(
                 request.page.toInt(),
                 50
@@ -109,8 +106,8 @@ class OutboundService(
             data += getOutboundByCashier.content.map {
                 outboundResponse {
                     outboundId = it.id.orEmpty()
-                    totalAmount = it.totalAmount.toLong()
-                    statues = it.status.toLong()
+                    totalAmount = it.totalAmount?.toLong() ?: 0
+                    statues = it.status?.toLong() ?: 0
                     cashier = with(it){
                         userResponse {
                             id = cashier?.id.orEmpty()
@@ -143,8 +140,11 @@ class OutboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListOutboundByCustomer(request: GetPagingRequestWithId): GetListOutboundResponse {
-        val getListOutboundByCustomer = outboundRepository.findAllByCustomerId(
-            customerId = request.resourceId.orEmpty(),
+       val getCustomer = customerRepository.findByIdOrNull(request.resourceId)?:
+       throw DataNotFound("cutomer tidak ditemukan")
+
+        val getListOutboundByCustomer = outboundRepository.findAllByCustomer(
+            customer = getCustomer,
             pageable = PageRequest.of(
                 request.page.toInt(),
                 50
@@ -161,8 +161,8 @@ class OutboundService(
             data += getListOutboundByCustomer.content.map {
                 outboundResponse {
                     outboundId = it.id.orEmpty()
-                    statues = it.status.toLong()
-                    totalAmount = it.totalAmount.toLong()
+                    statues = it.status?.toLong() ?: 0
+                    totalAmount = it.totalAmount?.toLong() ?: 0
                     cashier = with(it){
                         userResponse {
                             id = cashier?.id
@@ -197,13 +197,13 @@ class OutboundService(
      * if(data == null) throw DataNotFound
      * */
     suspend fun getDetailOutbound(request: GetById): OutboundResponse {
-        val getDetailOutbound = detailOutbound.findByOutbound(request.resourceId)?:
-        throw DataNotFound("DetailOutbound Not found")
+        val getDetailOutbound = outboundRepository.findByIdOrNull(request.resourceId)
+            ?:throw DataNotFound("DetailOutbound Not found")
 
         return outboundResponse {
             outboundId = getDetailOutbound.id.orEmpty()
-            statues = getDetailOutbound.status.toLong()
-            totalAmount = getDetailOutbound.totalAmount.toLong()
+            statues = getDetailOutbound.status?.toLong() ?: 0
+            totalAmount = getDetailOutbound.totalAmount?.toLong() ?: 0
             cashier = with(getDetailOutbound){
                 userResponse {
                     id = cashier?.id
@@ -234,8 +234,11 @@ class OutboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListDetailOutbound(request: GetPagingRequestWithId): GetListDetailOutboundResponse {
-        val getListDetailId = detailOutbound.findAllByOutboundId(
-            outboundId = request.resourceId,
+        val getOutbound = outboundRepository.findByIdOrNull(request.resourceId)?:
+        throw DataNotFound("outbound tidak ditemukan")
+
+        val getListDetailId = detailOutbound.findAllByOutbound(
+            outbound = getOutbound,
             pageable = PageRequest.of(
                 request.page.toInt(),
                 50
@@ -249,9 +252,9 @@ class OutboundService(
             data += getListDetailId.content.map {
                 detailOutboundResponse {
                     detailOutboundId = it.id.orEmpty()
-                    //quantity = it.quantity//quantity gada bang adanya total amount
-                    //price = it.price  //price juga gada bang
-                    totalPrice = it.totalAmount.toLong() //totalprice juga g nemu bang
+                    quantity = it.quantity.toLong()
+                    price = it.price.toLong()
+                    totalPrice = it.totalPrice.toLong()
                     product = with(it){
                         productResponse {
                             productId = product?.id.orEmpty()
@@ -274,11 +277,11 @@ class OutboundService(
                             }
                         }
                     }
-                    outbound =with(it) {
+                    outbound = with(it) {
                         outboundResponse {
                             outboundId = outbound?.id.orEmpty()
-                            statues = outbound?.status!!.toLong()
-                            totalAmount =  outbound?.totalAmount!!.toLong()
+                            statues = outbound?.status?.toLong()?:0
+                            totalAmount =  outbound?.totalAmount?.toLong()?:0
                             createdAt = outbound?.createdAt.toString()
                             updatedAt = outbound?.updatedAt.toString()
                             cashier = userResponse {
@@ -315,9 +318,49 @@ class OutboundService(
      *     detail.forEach{ findProduct  }
      * 5. save DetailInbound
      * */
-
+    @Transactional
     suspend fun createNewOutbound(request: CreateNewOutboundRequest): OutboundResponse {
-        return outboundResponse { }
+        val findCashierId = userRepository.findByIdOrNull(request.cashierId)
+            ?:throw DataNotFound("cashier not found")
+
+        val findCustomer = customerRepository.findByIdOrNull(request.customerId)
+            ?:throw DataNotFound("customer not found")
+        val outbound = Outbound()
+
+        val saveOutbound = outboundRepository.save(
+            outbound.copy(
+                id = null,
+                status = request.status.toString(),
+                totalAmount = request.totalAmount.toInt(),
+                cashier = findCashierId,
+                customer = findCustomer,
+                createdAt = Date(),
+                updatedAt = Date()
+            )
+        )
+        return outboundResponse {
+            outboundId = saveOutbound.id.orEmpty()
+            statues = saveOutbound.status?.toLong()?:0
+            totalAmount =  saveOutbound.totalAmount?.toLong()?:0
+            createdAt = saveOutbound.createdAt.toString()
+            updatedAt = saveOutbound.updatedAt.toString()
+            cashier = userResponse {
+                userId = saveOutbound.cashier?.id.orEmpty()
+                userFullName = saveOutbound.cashier?.userFullName.orEmpty()
+                userEmail = saveOutbound.cashier?.userEmail.orEmpty()
+                authProvider = saveOutbound.cashier?.authProvider.orEmpty()
+                createdAt = saveOutbound.cashier?.createdAt.toString()
+                updatedAt = saveOutbound.cashier?.updatedAt.toString()
+            }
+            customer = customerResponse {
+                customerId = saveOutbound.customer?.id.orEmpty()
+                customerFullName = saveOutbound.customer?.customerFullName.orEmpty()
+                customerEmail = saveOutbound.customer?.customerEmail.orEmpty()
+                customerPhoneNumber = saveOutbound.customer?.customerPhoneNumber.orEmpty()
+                createdAt = saveOutbound.customer?.createdAt.toString()
+                updatedAt = saveOutbound.customer?.updatedAt.toString()
+            }
+        }
     }
 
     /**
@@ -328,7 +371,44 @@ class OutboundService(
      * 5. save detail outbound
      * */
     suspend fun updateOutbound(request: UpdateOutboundRequest): OutboundResponse {
-        return outboundResponse { }
+        val findOutbound = outboundRepository.findByIdOrNull(request.outboundId)
+            ?:throw DataNotFound("outbound tidak ditemukan")
+
+        val findCustomer = customerRepository.findByIdOrNull(request.customerId)
+            ?:throw DataNotFound("customer not found")
+
+        val updateOutbound = with(request){
+            findOutbound.copy(
+                id = null,
+                status = if (status.isNullOrEmpty()) findOutbound.status else status,
+                totalAmount = totalAmount.toInt(),
+                updatedAt = Date(),
+                customer = findCustomer
+            )
+        }
+        return outboundResponse {
+            outboundId = updateOutbound.id.orEmpty()
+            statues = updateOutbound.status?.toLong()?:0
+            totalAmount =  updateOutbound.totalAmount?.toLong()?:0
+            createdAt = updateOutbound.createdAt.toString()
+            updatedAt = updateOutbound.updatedAt.toString()
+            cashier = userResponse {
+                userId = updateOutbound.cashier?.id.orEmpty()
+                userFullName = updateOutbound.cashier?.userFullName.orEmpty()
+                userEmail = updateOutbound.cashier?.userEmail.orEmpty()
+                authProvider = updateOutbound.cashier?.authProvider.orEmpty()
+                createdAt = updateOutbound.cashier?.createdAt.toString()
+                updatedAt = updateOutbound.cashier?.updatedAt.toString()
+            }
+            customer = customerResponse {
+                customerId = updateOutbound.customer?.id.orEmpty()
+                customerFullName = updateOutbound.customer?.customerFullName.orEmpty()
+                customerEmail = updateOutbound.customer?.customerEmail.orEmpty()
+                customerPhoneNumber = updateOutbound.customer?.customerPhoneNumber.orEmpty()
+                createdAt = updateOutbound.customer?.createdAt.toString()
+                updatedAt = updateOutbound.customer?.updatedAt.toString()
+            }
+        }
     }
 
     /**
@@ -337,7 +417,37 @@ class OutboundService(
      * 3. save data
      * */
     suspend fun updateStatusOutbound(request: UpdateStatusRequest): OutboundResponse {
-        return outboundResponse { }
+        val findOutbound = outboundRepository.findByIdOrNull(request.transactionId)
+            ?:throw DataNotFound("outbound tidak ditemukan")
+
+        val saveStatus = with(request){
+            findOutbound.copy(
+                status = if (status.isNullOrEmpty()) findOutbound.status else status
+            )
+        }
+        return outboundResponse {
+            outboundId = saveStatus.id.orEmpty()
+            statues = saveStatus.status?.toLong() ?: 0
+            totalAmount =  saveStatus.totalAmount?.toLong() ?:0
+            createdAt = saveStatus.createdAt.toString()
+            updatedAt = saveStatus.updatedAt.toString()
+            cashier = userResponse {
+                userId = saveStatus.cashier?.id.orEmpty()
+                userFullName = saveStatus.cashier?.userFullName.orEmpty()
+                userEmail = saveStatus.cashier?.userEmail.orEmpty()
+                authProvider = saveStatus.cashier?.authProvider.orEmpty()
+                createdAt = saveStatus.cashier?.createdAt.toString()
+                updatedAt = saveStatus.cashier?.updatedAt.toString()
+            }
+            customer = customerResponse {
+                customerId = saveStatus.customer?.id.orEmpty()
+                customerFullName = saveStatus.customer?.customerFullName.orEmpty()
+                customerEmail = saveStatus.customer?.customerEmail.orEmpty()
+                customerPhoneNumber = saveStatus.customer?.customerPhoneNumber.orEmpty()
+                createdAt = saveStatus.customer?.createdAt.toString()
+                updatedAt = saveStatus.customer?.updatedAt.toString()
+            }
+        }
     }
 
     /**
@@ -345,13 +455,48 @@ class OutboundService(
      * 2. delete data
      * */
     suspend fun deleteOutbound(request: DeleteOutboundRequest): OutboundResponse {
-        return outboundResponse { }
+        val findOutbound = outboundRepository.findByIdOrNull(request.outboundId)
+            ?:throw DataNotFound("outbound tiidak ditemukan")
+        
+        findOutbound.id.let{
+            outboundRepository.deleteById(it.orEmpty())
+        }
+        
+        return outboundResponse {
+            outboundId = findOutbound.id.orEmpty()
+            statues = findOutbound.status?.toLong()?:0
+            totalAmount =  findOutbound.totalAmount?.toLong()?:0
+            createdAt = findOutbound.createdAt.toString()
+            updatedAt = findOutbound.updatedAt.toString()
+            cashier = userResponse {
+                userId = findOutbound.cashier?.id.orEmpty()
+                userFullName = findOutbound.cashier?.userFullName.orEmpty()
+                userEmail = findOutbound.cashier?.userEmail.orEmpty()
+                authProvider = findOutbound.cashier?.authProvider.orEmpty()
+                createdAt = findOutbound.cashier?.createdAt.toString()
+                updatedAt = findOutbound.cashier?.updatedAt.toString()
+            }
+            customer = customerResponse {
+                customerId = findOutbound.customer?.id.orEmpty()
+                customerFullName = findOutbound.customer?.customerFullName.orEmpty()
+                customerEmail = findOutbound.customer?.customerEmail.orEmpty()
+                customerPhoneNumber = findOutbound.customer?.customerPhoneNumber.orEmpty()
+                createdAt = findOutbound.customer?.createdAt.toString()
+                updatedAt = findOutbound.customer?.updatedAt.toString()
+            }
+        }
     }
 
     /**
      * 1. delete By Ids
      * */
-    suspend fun deleteDetailOutbound(request: DeleteDetailOutboundRequest): DetailOutboundResponse {
-        return detailOutboundResponse { }
+    suspend fun deleteDetailOutbound(request: DeleteDetailOutboundRequest): DeleteDetailOutboundResponse {
+
+        userRepository.deleteAllById(request.detailOutboundIdList)
+
+        return deleteDetailOutboundResponse {
+            success = true
+            detaiOutboundId += request.detailOutboundIdList.map { it }
+        }
     }
 }
