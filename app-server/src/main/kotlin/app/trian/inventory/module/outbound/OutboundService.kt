@@ -25,7 +25,10 @@ import app.trian.inventory.v1.product.productResponse
 import app.trian.inventory.v1.user.userResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import javax.transaction.Transactional
+import javax.xml.crypto.Data
 
 @Service
 class OutboundService(
@@ -237,6 +240,7 @@ class OutboundService(
                 50
             )
         )
+        if (getListDetailId.isEmpty) throw DataNotFound("data is empty")
         return getListDetailOutboundResponse {
             totalItem = getListDetailId.totalElements
             totalPage = getListDetailId.totalPages.toLong()
@@ -310,7 +314,11 @@ class OutboundService(
      *     detail.forEach{ findProduct  }
      * 5. save DetailInbound
      * */
+    @Transactional
     suspend fun createNewOutbound(request: CreateNewOutboundRequest): OutboundResponse {
+        val findCashier = outboundRepository.findById(request.cashierId)?:
+        throw DataNotFound("cashier ${request.cashierId} not found")
+
         return outboundResponse { }
     }
 
