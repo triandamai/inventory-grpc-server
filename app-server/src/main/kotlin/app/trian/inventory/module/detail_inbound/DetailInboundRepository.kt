@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.PagingAndSortingRepository
 
 interface DetailInboundRepository:PagingAndSortingRepository<DetailInbound,String> {
-    fun findByInbound(outboundId: String) : Inbound?
 
-    fun finAllByInboundId(inboundId: String, pageable: Pageable): Page<DetailInbound>
+
+    fun findAllByInbound(inbound: Inbound, pageable: Pageable): Page<DetailInbound>
 }
