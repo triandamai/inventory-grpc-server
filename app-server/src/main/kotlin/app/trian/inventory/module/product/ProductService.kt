@@ -27,6 +27,10 @@ class ProductService(
             )
         )
 
+        if(findProduct.isEmpty){
+            throw DataNotFound("Tidak ditemukan satupun data")
+        }
+
         return getListProductResponse {
             totalItem = findProduct.totalElements
             totalPage = findProduct.totalPages.toLong()
@@ -65,10 +69,10 @@ class ProductService(
                 id = null,
                 productName = request.productName,
                 productDescription = request.productDescription,
-                productOutboundPrice = 12,
-                productInboundPrice = 11,
-                productStock = 10,
-                productUnit = "unit",
+                productOutboundPrice = request.productOutboundPrice.toInt(),
+                productInboundPrice = request.productInboundPrice.toInt(),
+                productStock = request.productStock.toInt(),
+                productUnit = request.productUnit,
                 createdAt = date,
                 updatedAt = date
 
@@ -80,6 +84,7 @@ class ProductService(
             productDescription = saveProduct.productDescription.orEmpty()
             productImage = saveProduct.productImage.orEmpty()
             productOutboundPrice = saveProduct.productOutboundPrice.toLong()
+            productInboundPrice = saveProduct.productInboundPrice.toLong()
             productStock = saveProduct.productStock.toLong()
             productUnit = saveProduct.productUnit.orEmpty()
             createdAt = saveProduct.createdAt.toString()
