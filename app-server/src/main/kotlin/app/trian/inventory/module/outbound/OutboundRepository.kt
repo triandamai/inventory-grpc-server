@@ -8,5 +8,7 @@ import org.springframework.data.repository.PagingAndSortingRepository
 
 interface OutboundRepository:PagingAndSortingRepository<Outbound,String> {
     fun findAllByCashierId(cashierId :String, pageable:Pageable): Page<Outbound>
+
     fun  findAllByCustomerId(customerId :String, pageable: Pageable): Page<Outbound>
+
 }

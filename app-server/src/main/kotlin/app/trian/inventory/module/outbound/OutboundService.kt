@@ -1,10 +1,13 @@
 package app.trian.inventory.module.outbound
 
+import app.trian.inventory.module.detail_outbound.DetailOutbound
+import app.trian.inventory.module.detail_outbound.DetailOutboundRepository
 import app.trian.inventory.module.error.DataNotFound
 import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.GetPagingRequestWithId
 import app.trian.inventory.v1.UpdateStatusRequest
+import app.trian.inventory.v1.category.categoryResponse
 import app.trian.inventory.v1.customer.customerResponse
 import app.trian.inventory.v1.outbound.CreateNewOutboundRequest
 import app.trian.inventory.v1.outbound.DeleteDetailOutboundRequest
@@ -18,6 +21,7 @@ import app.trian.inventory.v1.outbound.detailOutboundResponse
 import app.trian.inventory.v1.outbound.getListDetailOutboundResponse
 import app.trian.inventory.v1.outbound.getListOutboundResponse
 import app.trian.inventory.v1.outbound.outboundResponse
+import app.trian.inventory.v1.product.productResponse
 import app.trian.inventory.v1.user.userResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -25,7 +29,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class OutboundService(
-    private val outboundRepository: OutboundRepository
+    private val outboundRepository: OutboundRepository,
+    private val detailOutbound: DetailOutboundRepository
 ) {
 
     /**
@@ -123,6 +128,8 @@ class OutboundService(
                             updatedAt = customer?.updatedAt.toString()
                         }
                     }
+                    createdAt = it.createdAt.toString()
+                    updatedAt = it.updatedAt.toString()
                 }
             }
         }
@@ -172,6 +179,8 @@ class OutboundService(
                             updatedAt = customer?.updatedAt.toString()
                         }
                     }
+                    createdAt = it.createdAt.toString()
+                    updatedAt = it.updatedAt.toString()
                 }
             }
 
@@ -184,7 +193,36 @@ class OutboundService(
      * if(data == null) throw DataNotFound
      * */
     suspend fun getDetailOutbound(request: GetById): OutboundResponse {
-        return outboundResponse { }
+        val getDetailOutbound = detailOutbound.findByOutbound(request.resourceId)?:
+        throw DataNotFound("DetailOutbound Not found")
+
+        return outboundResponse {
+            outboundId = getDetailOutbound.id.orEmpty()
+            statues = getDetailOutbound.status.toLong()
+            totalAmount = getDetailOutbound.totalAmount.toLong()
+            cashier = with(getDetailOutbound){
+                userResponse {
+                    id = cashier?.id
+                    userFullName = cashier?.userFullName.orEmpty()
+                    userEmail = cashier?.userEmail.orEmpty()
+                    authProvider = cashier?.authProvider.orEmpty()
+                    createdAt = cashier?.createdAt.toString()
+                    updatedAt = cashier?.updatedAt.toString()
+                }
+            }
+            customer = with(getDetailOutbound){
+                customerResponse {
+                    customerId = customer?.id.orEmpty()
+                    customerFullName = customer?.customerFullName.orEmpty()
+                    customerEmail = customer?.customerEmail.orEmpty()
+                    customerPhoneNumber = customer?.customerPhoneNumber.orEmpty()
+                    createdAt = customer?.createdAt.toString()
+                    updatedAt = customer?.updatedAt.toString()
+                }
+            }
+            createdAt = getDetailOutbound.createdAt.toString()
+            updatedAt = getDetailOutbound.updatedAt.toString()
+        }
     }
 
     /**
@@ -192,7 +230,75 @@ class OutboundService(
      * if(data == 0) throw DataNotFound
      * */
     suspend fun getListDetailOutbound(request: GetPagingRequestWithId): GetListDetailOutboundResponse {
-        return getListDetailOutboundResponse { }
+        val getListDetailId = detailOutbound.findAllByOutboundId(
+            outboundId = request.resourceId,
+            pageable = PageRequest.of(
+                request.page.toInt(),
+                50
+            )
+        )
+        return getListDetailOutboundResponse {
+            totalItem = getListDetailId.totalElements
+            totalPage = getListDetailId.totalPages.toLong()
+            currentPage = getListDetailId.number.toLong()
+            data += getListDetailId.content.map {
+                detailOutboundResponse {
+                    detailOutboundId = it.id.orEmpty()
+                    //quantity = it.quantity//quantity gada bang adanya total amount
+                    //price = it.price  //price juga gada bang
+                    totalPrice = it.totalAmount.toLong() //totalprice juga g nemu bang
+                    product = with(it){
+                        productResponse {
+                            productId = product?.id.orEmpty()
+                            productName = product?.productName.orEmpty()
+                            productUnit = product?.productUnit.orEmpty()
+                            productOutboundPrice = product?.productOutboundPrice!!.toLong()
+                            productStock = product?.productStock!!.toLong()
+                            productDescription = product?.productDescription.orEmpty()
+                            productImage = product?.productImage.orEmpty()
+                            createdAt = product?.createdAt.toString()
+                            updatedAt = product?.updatedAt.toString()
+                            category = categoryResponse {
+                                product?.category?.map {
+                                    categoryId = it.id.orEmpty()
+                                    categoryName = it.categoryName.orEmpty()
+                                    categoryDescription = it.categoryDescription.orEmpty()
+                                    createdAt = it.createdAt.toString()
+                                    updatedAt = it.updatedAt.toString()
+                                }
+                            }
+                        }
+                    }
+                    outbound =with(it) {
+                        outboundResponse {
+                            outboundId = outbound?.id.orEmpty()
+                            statues = outbound?.status!!.toLong()
+                            totalAmount =  outbound?.totalAmount!!.toLong()
+                            createdAt = outbound?.createdAt.toString()
+                            updatedAt = outbound?.updatedAt.toString()
+                            cashier = userResponse {
+                                    id = outbound?.cashier?.id
+                                    userFullName = outbound?.cashier?.userFullName.orEmpty()
+                                    userEmail = outbound?.cashier?.userEmail.orEmpty()
+                                    authProvider = outbound?.cashier?.authProvider.orEmpty()
+                                    createdAt = outbound?.cashier?.createdAt.toString()
+                                    updatedAt = outbound?.cashier?.updatedAt.toString()
+                                }
+                            customer = customerResponse {
+                                    customerId = outbound?.customer?.id.orEmpty()
+                                    customerFullName = outbound?.customer?.customerFullName.orEmpty()
+                                    customerEmail = outbound?.customer?.customerEmail.orEmpty()
+                                    customerPhoneNumber = outbound?.customer?.customerPhoneNumber.orEmpty()
+                                    createdAt = outbound?.customer?.createdAt.toString()
+                                    updatedAt = outbound?.customer?.updatedAt.toString()
+                                }
+                        }
+                    }
+                }
+
+            }
+
+        }
     }
 
     /**
