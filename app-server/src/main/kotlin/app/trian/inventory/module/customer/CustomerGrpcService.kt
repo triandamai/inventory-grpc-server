@@ -2,6 +2,7 @@ package app.trian.inventory.module.customer
 
 import app.trian.inventory.module.error.DataExist
 import app.trian.inventory.module.error.DataNotFound
+import app.trian.inventory.v1.GetById
 import app.trian.inventory.v1.GetPagingRequest
 import app.trian.inventory.v1.customer.CreateNewCustomerRequest
 import app.trian.inventory.v1.customer.CustomerGrpcKt
@@ -23,6 +24,8 @@ class CustomerGrpcService(
     override suspend fun getListCustomer(request: GetPagingRequest): GetListCustomerResponse =
         customerService.getListCustomer(request)
 
+    override suspend fun getCustomerById(request: GetById): CustomerResponse =
+        customerService.getCustomerById(request)
     override suspend fun createNewCustomer(request: CreateNewCustomerRequest): CustomerResponse =
         customerService.createNewCustomer(request)
 

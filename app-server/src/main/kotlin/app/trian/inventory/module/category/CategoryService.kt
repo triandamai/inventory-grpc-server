@@ -34,6 +34,10 @@ class CategoryService (
                 50
             )
         )
+         if(findCategory.isEmpty){
+             throw DataNotFound("category not found")
+
+         }
         return getListCategoryResponse {
             totalItem = findCategory.totalElements
             totalPage = findCategory.totalPages.toLong()
@@ -80,8 +84,8 @@ class CategoryService (
 
         val updatecategory = with(request){
             findCategory.copy(
-                categoryName = findCategory.categoryName,
-                categoryDescription = findCategory.categoryDescription,
+                categoryName = if(categoryName.isNullOrEmpty()) findCategory.categoryName else categoryName,
+                categoryDescription = if(categoryDescription.isNullOrEmpty()) findCategory.categoryDescription else categoryDescription,
                 updatedAt = Date()
             )
         }
