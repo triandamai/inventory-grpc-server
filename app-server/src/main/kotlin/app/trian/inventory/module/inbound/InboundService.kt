@@ -23,6 +23,7 @@ import app.trian.inventory.v1.product.productResponse
 import app.trian.inventory.v1.supplier.supplierResponse
 import app.trian.inventory.v1.user.userResponse
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -315,6 +316,7 @@ class InboundService(
      * 5. save DetailInbound
      * */
     suspend fun createNewInbound(request: CreateNewInboundRequest): InboundResponse {
+        val finCashierId = inboundRepository.findByIdOrNull(request.cashierId)
         return inboundResponse { }
     }
 
