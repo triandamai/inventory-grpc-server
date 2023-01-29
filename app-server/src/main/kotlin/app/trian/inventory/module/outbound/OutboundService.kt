@@ -100,7 +100,7 @@ class OutboundService(
                 50
             )
         )
-
+        if (getOutboundByCashier.isEmpty) throw DataNotFound("data is empty")
         return getListOutboundResponse {
             totalItem = getOutboundByCashier.totalElements
             totalPage = getOutboundByCashier.totalPages.toLong()
@@ -150,6 +150,7 @@ class OutboundService(
                 50
             )
         )
+        if (getListOutboundByCustomer.isEmpty) throw DataNotFound("data is empty")
         return getListOutboundResponse {
             currentPage = getListOutboundByCustomer.number.toLong()
 
@@ -314,11 +315,8 @@ class OutboundService(
      *     detail.forEach{ findProduct  }
      * 5. save DetailInbound
      * */
-    @Transactional
-    suspend fun createNewOutbound(request: CreateNewOutboundRequest): OutboundResponse {
-        val findCashier = outboundRepository.findById(request.cashierId)?:
-        throw DataNotFound("cashier ${request.cashierId} not found")
 
+    suspend fun createNewOutbound(request: CreateNewOutboundRequest): OutboundResponse {
         return outboundResponse { }
     }
 
