@@ -45,7 +45,7 @@ class SupplierController(
         produces = ["application/json"]
     )
     suspend fun getSupplierById(
-        @PathVariable(name = "suplierId") supplierId:String =""
+        @PathVariable(name = "supplierId") supplierId:String =""
     ) = coroutineScope {
         supplierService.getSupplierById(
             getById {
