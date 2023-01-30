@@ -15,8 +15,8 @@ data class Inbound(
         strategy = "org.hibernate.id.UUIDGenerator"
     )
     var id:String? = null,
-    var status:String,
-    var totalAmount:Int,
+    var status:String? = null,
+    var totalAmount:Int? = null,
     @ManyToOne(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REFRESH]
@@ -28,7 +28,7 @@ data class Inbound(
     )
     var supplier: Supplier?=null,
     @Temporal(TemporalType.TIMESTAMP)
-    var createdAt: Date,
+    var createdAt: Date? = null,
     @Temporal(TemporalType.TIMESTAMP)
-    var updatedAt: Date
+    var updatedAt: Date? = null
 )
