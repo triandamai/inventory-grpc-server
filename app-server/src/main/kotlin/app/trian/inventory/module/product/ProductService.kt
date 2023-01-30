@@ -42,6 +42,7 @@ class ProductService(
                     productImage = it.productImage.orEmpty()
                     productStock = it.productStock.toLong()
                     productOutboundPrice = it.productOutboundPrice.toLong()
+                    productInboundPrice = it.productInboundPrice.toLong()
                     productUnit = it.productUnit.orEmpty()
                     category = categoryResponse {
                         it.category.map {
@@ -93,18 +94,18 @@ class ProductService(
     }
 
     suspend fun updateProduct(request: UpdateProductRequest): ProductResponse {
-        val findPoduct = productRepository.findByIdOrNull(request.productId.toString())
+        val findProduct = productRepository.findByIdOrNull(request.productId.toString())
             ?: throw DataNotFound("cannot find product ${request.productId}")
 
         val updateProduct = with(request) {
-            findPoduct.copy(
-                productName = findPoduct.productName,
-                productDescription = findPoduct.productDescription,
-                productInboundPrice = findPoduct.productInboundPrice,
-                productOutboundPrice = findPoduct.productOutboundPrice,
-                productUnit = findPoduct.productUnit,
-                productImage = findPoduct.productImage,
-                productStock = findPoduct.productStock,
+            findProduct.copy(
+                productName = if(productName.isNullOrEmpty()) findProduct.productName else productName,
+                productDescription = if(productDescription.isNullOrEmpty()) findProduct.productDescription else productDescription,
+                productInboundPrice = productInboundPrice.toInt(),
+                productOutboundPrice = productOutboundPrice.toInt(),
+                productUnit = if(productUnit.isNullOrEmpty()) findProduct.productUnit else productUnit,
+                productImage = if(productImage.isNullOrEmpty()) findProduct.productImage else productImage,
+                productStock =productStock.toInt(),
                 updatedAt = Date()
 
             )
@@ -116,6 +117,7 @@ class ProductService(
             productName = saveUpdateProduct.productName.orEmpty()
             productDescription = saveUpdateProduct.productDescription.orEmpty()
             productOutboundPrice = saveUpdateProduct.productOutboundPrice.toLong()
+            productInboundPrice = findProduct.productInboundPrice.toLong()
             productUnit = saveUpdateProduct.productUnit.orEmpty()
             productImage = saveUpdateProduct.productImage.orEmpty()
             productStock = saveUpdateProduct.productStock.toLong()
@@ -134,6 +136,7 @@ class ProductService(
             productName = findProduct.productName.orEmpty()
             productDescription = findProduct.productDescription.orEmpty()
             productOutboundPrice = findProduct.productOutboundPrice.toLong()
+            productInboundPrice = findProduct.productInboundPrice.toLong()
             productUnit = findProduct.productUnit.orEmpty()
             productImage = findProduct.productImage.orEmpty()
             productStock = findProduct.productStock.toLong()
