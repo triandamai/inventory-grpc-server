@@ -17,7 +17,9 @@ data class DetailOutbound(
     )
     var id:String? = null,
     var status:String,
-    var totalAmount:Int,
+    var price:Int,
+    var quantity:Int,
+    var totalPrice:Int,
     @ManyToOne(
         fetch = FetchType.LAZY,
         cascade = [CascadeType.REFRESH]
