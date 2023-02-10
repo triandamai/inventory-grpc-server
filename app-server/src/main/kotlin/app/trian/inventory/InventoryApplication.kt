@@ -9,10 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 class GrpcLearnApplication{
 	@Bean
 	fun passwordEncoder() = BCryptPasswordEncoder()
-
 }
 
 fun main(args: Array<String>) {
-
 	runApplication<GrpcLearnApplication>(*args)
 }
