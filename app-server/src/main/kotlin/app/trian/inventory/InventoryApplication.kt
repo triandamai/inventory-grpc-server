@@ -16,5 +16,3 @@ fun main(args: Array<String>) {
 
 	runApplication<GrpcLearnApplication>(*args)
 }
-
-///wkwkwk
